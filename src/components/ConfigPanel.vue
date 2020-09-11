@@ -15,6 +15,9 @@
       >{{language.label}}</option>
     </select>
 
+    <label>Choose a template</label>
+    <Templates :value="config.selectedTemplate" @input="handleTemplateChange" />
+
     <div class="row">
       <div class="col">
         <label>Border Theme</label>
@@ -132,11 +135,12 @@ import { hljsThemes } from "@/data";
 import humanizeString from "humanize-string";
 import RangeInput from "@/components/RangeInput";
 import ColorPicker from "@/components/ColorPicker";
+import Templates from "@/components/Templates";
 import hljs from "highlight.js";
 
 export default {
   name: "ConfigPanel",
-  components: { ColorPicker, RangeInput },
+  components: { ColorPicker, RangeInput, Templates },
   props: ["value"],
   data() {
     return {
@@ -190,6 +194,10 @@ export default {
     changeLanguage(languageName) {
       this.config.selectedLanguage = languageName;
       this.$emit("languageChange", languageName);
+    },
+
+    handleTemplateChange(templateName) {
+      this.$emit("templateChange", templateName);
     },
 
     toggleConfig() {

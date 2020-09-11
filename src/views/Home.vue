@@ -30,6 +30,7 @@
       :value="config"
       @download="toCanvas()"
       @languageChange="handleLanguageChange"
+      @templateChange="handleTemplateChange"
     />
   </div>
 </template>
@@ -39,6 +40,7 @@ import html2canvas from "html2canvas";
 import hljs from "highlight.js";
 import { saveAs } from "file-saver";
 import ConfigPanel from "@/components/ConfigPanel";
+import { templates } from "@/data";
 
 export default {
   name: "Home",
@@ -58,6 +60,7 @@ export default {
         paddingY: 50,
         borderRadius: 5,
         backgroundColor: "#2980b9",
+        selectedTemplate: "temp-1",
       },
     };
   },
@@ -87,6 +90,7 @@ export default {
         this.config.selectedLanguage,
         this.codeText
       ).value;
+      this.handleTemplateChange(this.config.selectedTemplate);
     },
 
     handleCodeEditorPaste(e) {
@@ -105,6 +109,18 @@ export default {
     handleLanguageChange(languageName) {
       this.config.selectedLanguage = languageName;
       this.codeHighlighted = hljs.highlight(languageName, this.codeText).value;
+    },
+
+    handleTemplateChange(templateName) {
+      let template = templates.find((t) => t.name == templateName);
+      if (template) {
+        Object.keys(template).forEach((key) => {
+          this.config[key] = template[key];
+        });
+        this.$refs.configPanel.changeEditorTheme(
+          this.config.selectedEditorTheme
+        );
+      }
     },
   },
 
