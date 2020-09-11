@@ -1,7 +1,5 @@
 <template>
   <div class="home">
-    <div class="canvasContainer" ref="canvasContainer"></div>
-
     <div class="logo">
       <img src="@/assets/logo.svg" />
       <span class="appName">CodeShot</span>
@@ -64,6 +62,29 @@
         >{{theme.label}}</option>
       </select>
 
+      <label>Font family</label>
+      <select class="form-control" v-model="config.fontFamily">
+        <option
+          v-for="font in fontFamilies"
+          :value="font.value"
+          :selected="font.value == config.fontFamily"
+          :key="font.value"
+        >{{font.label}}</option>
+      </select>
+
+      <v-swatches
+        v-model="config.backgroundColor"
+        show-fallback
+        fallback-input-type="color"
+        :swatch-size="30"
+      >
+        <div
+          slot="trigger"
+          class="backgroundColorHandle"
+          :style="'background-color: ' + config.backgroundColor"
+        ></div>
+      </v-swatches>
+
       <label>Font Size</label>
       <RangeInput v-model="config.fontSize" :min="10" :max="40" :value="config.fontSize" />
 
@@ -97,22 +118,28 @@ import { hljsThemes } from "@/data";
 import humanizeString from "humanize-string";
 import { saveAs } from "file-saver";
 import RangeInput from "@/components/RangeInput";
+// require("highlightjs-line-numbers.js");
+import VSwatches from "vue-swatches";
+import "vue-swatches/dist/vue-swatches.css";
 
 export default {
   name: "Home",
-  components: { RangeInput },
+  components: { RangeInput, VSwatches },
   data() {
     return {
-      codeText: null,
+      codeText: `var a = "Hello World!";\nconsole.log(a);`,
       codeHighlighted: null,
 
       config: {
         visible: true,
         selectedEditorTheme: "dracula",
-        selectedBorderTheme: "theme-1",
-        fontSize: 12,
-        paddingX: 0,
+        selectedBorderTheme: "none",
+        fontSize: 16,
+        fontFamily: '"Fira Code", monospace',
+        paddingX: 50,
+        paddingY: 50,
         borderRadius: 5,
+        backgroundColor: "#ffffff",
       },
 
       borderThemes: [
@@ -122,27 +149,37 @@ export default {
         { label: "Theme 3", value: "theme-3" },
         { label: "Theme 4", value: "theme-4" },
       ],
+
+      fontFamilies: [
+        { label: "Fire Code", value: '"Fira Code", monospace' },
+        { label: "Source Code Pro", value: '"Source Code Pro", monospace' },
+        { label: "Inconsolata", value: '"Inconsolata", monospace' },
+        { label: "Ubuntu Mono", value: '"Ubuntu Mono", monospace' },
+      ],
     };
   },
 
   mounted() {
     this.changeEditorTheme(this.config.selectedEditorTheme);
+    this.highlight();
   },
 
   methods: {
     toCanvas() {
       html2canvas(document.querySelector("#screenshot")).then((canvas) => {
-        this.$refs.canvasContainer.innerHTML = "";
         canvas.toBlob(function (blob) {
           saveAs(blob, "pretty image.png");
         });
       });
     },
 
+    highlight() {
+      this.codeHighlighted = hljs.highlightAuto(this.codeText).value;
+    },
+
     async pasteCode() {
       this.codeText = await navigator.clipboard.readText();
-      if (this.codeText.length > 0)
-        this.codeHighlighted = hljs.highlightAuto(this.codeText).value;
+      if (this.codeText.length > 0) this.highlight();
       else this.codeHighlighted = null;
     },
 
@@ -183,17 +220,19 @@ export default {
     },
 
     codeEditorInlineCss() {
-      return (
-        "font-size: " +
-        this.config.fontSize +
-        "px;" +
-        "border-bottom-left-radius: " +
-        this.config.borderRadius +
-        "px; " +
-        "border-bottom-right-radius: " +
-        this.config.borderRadius +
-        "px"
-      );
+      let extraCss = "";
+      if (this.config.selectedBorderTheme === "none")
+        extraCss = `
+        border-top-left-radius: ${this.config.borderRadius}px;
+        border-top-right-radius: ${this.config.borderRadius}px;
+      `;
+      return `
+        ${extraCss}
+        font-size: ${this.config.fontSize}px;
+        border-bottom-left-radius: ${this.config.borderRadius}px;
+        border-bottom-right-radius: ${this.config.borderRadius}px;
+        font-family: ${this.config.fontFamily}
+      `;
     },
 
     borderInlineCss() {
@@ -208,9 +247,10 @@ export default {
     },
 
     screenshotInlineCss() {
-      return (
-        "padding: " + this.config.paddingX + "px " + this.config.paddingY + "px"
-      );
+      return `
+        background-color: ${this.config.backgroundColor};
+        padding: ${this.config.paddingY || 0}px ${this.config.paddingX || 0}px;
+      `;
     },
   },
 };
@@ -244,6 +284,7 @@ export default {
 
   .appContainer {
     width: calc(100vw - 250px);
+    // width: 100%;
     height: 100%;
     position: absolute;
     display: flex;
@@ -257,17 +298,12 @@ export default {
       resize: horizontal;
       overflow: auto;
 
-      &:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-          0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      }
-
       #border {
         height: 40px;
-        transform: translateY(10px);
         margin: 0;
         padding: 0;
         padding-left: 0.5rem;
+        transform: translateY(1px);
         display: flex;
 
         &.--none {
@@ -369,7 +405,7 @@ export default {
     .form-control {
       outline: none;
       color: black;
-      padding: 0.5rem 1rem;
+      padding: 0.25rem 0.5rem;
       border-radius: 0.2rem;
       background-color: white;
       margin: 0.5rem;
@@ -378,7 +414,22 @@ export default {
     }
 
     label {
+      font-size: 0.8rem;
       margin-left: 0.5rem;
+    }
+
+    .backgroundColorHandle {
+      height: 20px;
+      width: 20px;
+      border-radius: 5px;
+      margin: 0.5rem;
+      margin-bottom: 1rem;
+
+      &::after {
+        margin-left: 25px;
+        content: "Backgroundcolor";
+        font-size: 0.9rem;
+      }
     }
 
     .actionBtnContainer {
@@ -459,13 +510,20 @@ export default {
   .hljs {
     padding: 1.5rem 1rem;
     outline: none;
-    font-family: "Courier New", Courier, monospace;
   }
+
+  // box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  //   0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.canvasContainer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+.vue-swatches {
+  .vue-swatches__container {
+    top: 30px !important;
+    left: 0;
+  }
+
+  .vue-swatches__fallback__button{
+    display: none;
+  }
 }
 </style>

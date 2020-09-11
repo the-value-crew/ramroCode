@@ -4,14 +4,18 @@
       ref="slider"
       :min="min"
       :max="max"
-      :height="2"
+      :height="1"
       :contained="true"
       :clickable="true"
-      :tooltip="'active'"
+      :tooltip="'none'"
       :tooltipPlacement="'top'"
       @change="handleChange"
       :value="val"
+      v-model="val"
     >
+      <template v-slot:dot>
+        <div class="custom-dot">{{val}}</div>
+      </template>
     </vue-slider>
   </div>
 </template>
@@ -36,11 +40,26 @@ export default {
 </script>
 
 <style lang="scss">
-$themeColor: white;
+$themeColor: #3f3b41;
 @import "vue-slider-component/lib/theme/default.scss";
 
-.rangeInputWrapper{
-  margin: 1rem 0.5rem;
+.rangeInputWrapper {
+  margin: 0.5rem;
+  margin-bottom: 1rem;
+
+  .custom-dot {
+    background-color: white;
+    height: 18px;
+    width: 25px;
+    border-radius: 3px;
+    margin-top: -1px;
+    color: #3f3b41;
+    font-size: 0.7rem;
+    text-align: center;
+    line-height: 20px;
+    font-weight: bold;
+    cursor: pointer;
+  }
 }
 </style>
 

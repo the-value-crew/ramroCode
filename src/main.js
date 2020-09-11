@@ -5,6 +5,7 @@ import store from './store'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import './styles/main.scss';
+import 'vue-swatches/dist/vue-swatches.css'
 
 Vue.component('VueSlider', VueSlider)
 Vue.config.productionTip = false

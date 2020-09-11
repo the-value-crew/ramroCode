@@ -6,7 +6,7 @@ $fa-font-path: "../assets/webfonts";
 @import "@/styles/vendor/fontawesome/brands.scss";
 @import "@/styles/vendor/fontawesome/regular.scss";
 
-@import url("https://fonts.googleapis.com/css2?family=Karla&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Karla&family=Fira+Code&family=Source+Code+Pro&family=Inconsolata&family=Ubuntu+Mono&display=swap');
 
 body {
   padding: 0;
@@ -19,8 +19,6 @@ body {
   h4,
   h5,
   p,
-  span,
-  label,
   div,
   input,
   button,
