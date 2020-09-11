@@ -1,0 +1,5 @@
+<svg viewBox="0 0 320.09765625 83.99999999999999" width="320.09765625" height="83.99999999999999" xmlns="http://www.w3.org/2000/svg">
+<rect id="bg" fill="#2E3440" width="320.09765625" height="83.99999999999999" rx="4"></rect><g id="tokens" transform="translate(42.6796875, 33.599999999999994)"><text font-family="Droid Sans Mono" font-size="12" y="16.799999999999997">
+<tspan x="0" fill="#81A1C1">var</tspan><tspan x="32.009765625" fill="#D8DEE9" opacity="1"> </tspan><tspan x="42.6796875" fill="#D8DEE9">a</tspan><tspan x="53.349609375" fill="#D8DEE9" opacity="1"> </tspan><tspan x="64.01953125" fill="#81A1C1">=</tspan><tspan x="74.689453125" fill="#D8DEE9" opacity="1"> </tspan><tspan x="85.359375" fill="#ECEFF4">&quot;</tspan><tspan x="96.029296875" fill="#A3BE8C">Hello World</tspan><tspan x="213.3984375" fill="#ECEFF4">&quot;</tspan><tspan x="224.068359375" fill="#81A1C1">;</tspan>
+</text></g>
+</svg>

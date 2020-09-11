@@ -1,0 +1,30 @@
+// // Font Awesome
+$fa-font-path: "../assets/webfonts";
+@import "@/styles/vendor/fontawesome/fontawesome.scss";
+@import "@/styles/vendor/fontawesome/solid.scss";
+@import "@/styles/vendor/fontawesome/light.scss";
+@import "@/styles/vendor/fontawesome/brands.scss";
+@import "@/styles/vendor/fontawesome/regular.scss";
+
+@import url("https://fonts.googleapis.com/css2?family=Karla&display=swap");
+
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Karla", sans-serif;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  p,
+  span,
+  label,
+  div,
+  input,
+  button,
+  select {
+    font-family: "Karla", sans-serif;
+  }
+}
