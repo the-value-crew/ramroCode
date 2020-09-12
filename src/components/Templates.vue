@@ -34,7 +34,7 @@ export default {
   methods: {
     selectPreset(template) {
       this.val = template.name;
-      this.$emit("input", template.name);
+      this.$emit("input", template);
     },
   },
 
@@ -53,7 +53,7 @@ export default {
   overflow-x: auto;
 
   .template {
-    $size: 75px;
+    $size: 50px;
 
     position: relative;
     height: $size;

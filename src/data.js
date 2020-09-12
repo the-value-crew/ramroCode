@@ -2,7 +2,7 @@ export const hljsThemes = ["a11y-dark", "a11y-light", "agate", "androidstudio", 
 export const templates = [
     {
         name: "temp-1",
-        selectedTheme: "dracula",
+        selectedEditorTheme: "dracula",
         fontSize: 16,
         selectedBorderTheme: "theme-1",
         fontFamily: '"Fira Code", monospace',
@@ -10,11 +10,12 @@ export const templates = [
         paddingY: 50,
         borderRadius: 5,
         backgroundColor: "#2980b9",
+        selectedStackTheme: 'none'
     },
 
     {
         name: "temp-2",
-        selectedTheme: "vs2015",
+        selectedEditorTheme: "vs2015",
         fontSize: 14,
         selectedBorderTheme: "theme-3",
         fontFamily: '"Fira Code", monospace',
@@ -22,5 +23,45 @@ export const templates = [
         paddingY: 40,
         borderRadius: 1,
         backgroundColor: "#2ecc70",
+        selectedStackTheme: 'none'
+    },
+
+    {
+        name: "temp-3",
+        selectedEditorTheme: "monokai",
+        fontSize: 16,
+        selectedBorderTheme: "theme-1",
+        fontFamily: '"Ubuntu Mono", monospace',
+        paddingX: 45,
+        paddingY: 45,
+        borderRadius: 5,
+        backgroundColor: "#BDBDBD",
+        selectedStackTheme: 'none'
+    },
+
+    {
+        name: "temp-4",
+        selectedEditorTheme: "default",
+        fontSize: 14,
+        selectedBorderTheme: "theme-1",
+        fontFamily: '"Fira Code", monospace',
+        paddingX: 60,
+        paddingY: 60,
+        borderRadius: 5,
+        backgroundColor: "#ef5350",
+        selectedStackTheme: 'none'
+    },
+
+    {
+        name: "temp-5",
+        selectedEditorTheme: "dracula",
+        fontSize: 14,
+        selectedBorderTheme: "theme-1",
+        fontFamily: '"Fira Code", monospace',
+        paddingX: 55,
+        paddingY: 55,
+        borderRadius: 5,
+        backgroundColor: "#ffffff",
+        selectedStackTheme: 'theme-1'
     }
 ];

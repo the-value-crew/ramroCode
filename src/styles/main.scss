@@ -1,4 +1,4 @@
-// // Font Awesome
+// Font Awesome
 $fa-font-path: "../assets/webfonts";
 @import "@/styles/vendor/fontawesome/fontawesome.scss";
 @import "@/styles/vendor/fontawesome/solid.scss";
@@ -6,7 +6,7 @@ $fa-font-path: "../assets/webfonts";
 @import "@/styles/vendor/fontawesome/brands.scss";
 @import "@/styles/vendor/fontawesome/regular.scss";
 
-@import url('https://fonts.googleapis.com/css2?family=Karla&family=Fira+Code&family=Source+Code+Pro&family=Inconsolata&family=Ubuntu+Mono&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Karla&family=Fira+Code&family=Source+Code+Pro&family=Inconsolata&family=Ubuntu+Mono&display=swap");
 
 body {
   padding: 0;
@@ -24,5 +24,13 @@ body {
   button,
   select {
     font-family: "Karla", sans-serif;
+  }
+}
+
+.row {
+  display: flex;
+
+  .col {
+    flex: 1;
   }
 }

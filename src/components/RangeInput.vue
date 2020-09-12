@@ -36,6 +36,12 @@ export default {
       this.$emit("input", newPos);
     },
   },
+
+  watch:{
+    value(oldVal, newVal){
+      if(newVal != oldVal) this.val = newVal;
+    }
+  }
 };
 </script>
 
@@ -50,7 +56,7 @@ $themeColor: #3f3b41;
   .custom-dot {
     background-color: white;
     height: 18px;
-    width: 25px;
+    width: 20px;
     border-radius: 3px;
     margin-top: -1px;
     color: #3f3b41;

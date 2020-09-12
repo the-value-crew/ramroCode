@@ -7,12 +7,22 @@
 
     <div class="appContainer">
       <div id="screenshot" class="codeContainer" :style="screenshotInlineCss">
-        <pre id="code"><div id="border" class="hljs" :class="'--' + config.selectedBorderTheme" :style="borderInlineCss">
+        <pre id="code"><div class="stack --first" :class="'--' + config.selectedStackTheme" ref="stackOne"></div><div
+  class="stack --second"
+  :class="'--' + config.selectedStackTheme"
+  ref="stackTwo"
+></div><div
+  id="border"
+  class="hljs"
+  :class="'--' + config.selectedBorderTheme"
+  :style="borderInlineCss"
+>
           <div class="dot dot-1"></div>
           <div class="dot dot-2"></div>
           <div class="dot dot-3"></div>
         </div><div
   ref="codeEditor"
+  id="codeEditor"
   class="hljs code"
   v-html="codeHighlighted"
   contenteditable
@@ -31,6 +41,8 @@
       @download="toCanvas()"
       @languageChange="handleLanguageChange"
       @templateChange="handleTemplateChange"
+      @editorThemeChange="handleEditorThemeChange"
+      @stackThemeChange="handleStackThemeChange"
     />
   </div>
 </template>
@@ -41,6 +53,7 @@ import hljs from "highlight.js";
 import { saveAs } from "file-saver";
 import ConfigPanel from "@/components/ConfigPanel";
 import { templates } from "@/data";
+import { fluctuateRgb } from "@/helper";
 
 export default {
   name: "Home",
@@ -49,10 +62,13 @@ export default {
     return {
       codeText: null,
       codeHighlighted: null,
+      stackBaseColor: null,
+
       config: {
         visible: true,
         selectedEditorTheme: "dracula",
         selectedBorderTheme: "theme-1",
+        selectedStackTheme: "none",
         selectedLanguage: "javascript",
         fontSize: 16,
         fontFamily: '"Fira Code", monospace',
@@ -91,6 +107,27 @@ export default {
         this.codeText
       ).value;
       this.handleTemplateChange(this.config.selectedTemplate);
+    },
+
+    handleEditorThemeChange() {
+      setTimeout(() => {
+        this.stackBaseColor = window
+          .getComputedStyle(document.querySelector(".hljs"))
+          .getPropertyValue("background-color");
+
+        this.$refs.stackOne.style.backgroundColor = fluctuateRgb(
+          this.stackBaseColor,
+          20
+        );
+        this.$refs.stackTwo.style.backgroundColor = fluctuateRgb(
+          this.stackBaseColor,
+          10
+        );
+      }, 1000);
+    },
+
+    handleStackThemeChange(stackThemeName) {
+      this.config.selectedStackTheme = stackThemeName;
     },
 
     handleCodeEditorPaste(e) {
@@ -195,13 +232,76 @@ export default {
 
     .codeContainer {
       padding: 10px;
-      background-color: white;
+      // background-color: white;
       min-width: 400px;
+      min-height: 110px;
       resize: horizontal;
       overflow: auto;
+      transition: background-color 0.2s ease;
+
       #code {
         margin-bottom: 0;
         margin-top: 0;
+        position: relative;
+        z-index: 1;
+
+        .blob {
+          position: absolute;
+          top: 0;
+          left: 0;
+          transform: translate(-50%, -50%);
+          z-index: -1;
+        }
+
+        .stack {
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          border-radius: 5px;
+          width: 100%;
+          height: 100%;
+          padding: unset;
+          transform-origin: 50% 50%;
+          z-index: -1;
+
+          &.--theme-1 {
+            &.--first {
+              top: -15px;
+              left: -15px;
+              transform: rotate(-4.72deg);
+            }
+
+            &.--second {
+              top: 10px;
+              left: 10px;
+              transform: rotate(4.72deg);
+            }
+          }
+
+          &.--theme-2 {
+            &.--first {
+              top: unset;
+              width: 96%;
+              bottom: -8px;
+              left: 50%;
+              transform: translateX(-50%);
+              z-index: -1;
+            }
+
+            &.--second {
+              top: unset;
+              width: 90%;
+              bottom: -13px;
+              left: 50%;
+              transform: translateX(-50%);
+              z-index: -2;
+            }
+          }
+
+          &.--none {
+            display: none;
+          }
+        }
 
         #border {
           height: 40px;
@@ -210,6 +310,17 @@ export default {
           padding-left: 0.5rem;
           transform: translateY(1px);
           display: flex;
+          transition: all 0.2s ease;
+
+          $dotSize: 16px;
+          .dot {
+            height: $dotSize;
+            width: $dotSize;
+            background-color: white;
+            border-radius: 50%;
+            align-self: center;
+            margin: 0 5px;
+          }
 
           &.--none {
             display: none;
@@ -247,25 +358,18 @@ export default {
             .dot-1,
             .dot-2,
             .dot-3 {
+              height: $dotSize - 2;
+              width: $dotSize - 2;
               background-color: transparent;
               border: 1px solid #fefefe;
             }
           }
-
-          .dot {
-            $size: 16px;
-            height: $size;
-            width: $size;
-            background-color: white;
-            border-radius: 50%;
-            align-self: center;
-            margin: 0 5px;
-          }
         }
 
-        .hljs {
+        #codeEditor {
           padding: 1.5rem 1rem;
           outline: none;
+          transition: all 0.2s ease;
         }
 
         // box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),

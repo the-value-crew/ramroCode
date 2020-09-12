@@ -1,119 +1,149 @@
 <template>
   <div class="cpanel" :class="{'--hidden': !config.visible}">
-    <div class="handle" @click="toggleConfig()">
-      <i class="fal" :class="{'fa-angle-right': config.visible, 'fa-angle-left': !config.visible}"></i>
-    </div>
-    <h1 class="title">Edit Panel</h1>
-
-    <label>Language</label>
-    <select class="form-control" @input="(e) => changeLanguage(e.target.value)">
-      <option
-        v-for="language in hljsLanguages"
-        :key="language.value"
-        :value="language.value"
-        :selected="language.value == config.selectedLanguage"
-      >{{language.label}}</option>
-    </select>
-
-    <label>Choose a template</label>
-    <Templates :value="config.selectedTemplate" @input="handleTemplateChange" />
-
-    <div class="row">
-      <div class="col">
-        <label>Border Theme</label>
-        <select class="form-control" @input="(e) => changeBorderTheme(e.target.value)">
-          <option
-            v-for="borderTheme in borderThemes"
-            :key="borderTheme.value"
-            :value="borderTheme.value"
-            :selected="borderTheme.value == config.selectedBorderTheme"
-          >{{borderTheme.label}}</option>
-        </select>
+    <div class="generalSettings">
+      <div class="handle" @click="toggleConfig()">
+        <i
+          class="fal"
+          :class="{'fa-angle-right': config.visible, 'fa-angle-left': !config.visible}"
+        ></i>
       </div>
-      <div class="col">
-        <label>Editor Theme</label>
-        <select
-          class="form-control"
-          @input="(e) => changeEditorTheme(e.target.value)"
-          style="max-width: 120px"
-        >
-          <option
-            v-for="theme in hljsThemes"
-            :value="theme.value"
-            :selected="theme.value == config.selectedEditorTheme"
-            :key="theme.value"
-          >{{theme.label}}</option>
-        </select>
-      </div>
+      <h1 class="title">Edit Panel</h1>
+
+      <label>Language</label>
+      <select class="form-control" @input="(e) => changeLanguage(e.target.value)">
+        <option
+          v-for="language in hljsLanguages"
+          :key="language.value"
+          :value="language.value"
+          :selected="language.value == config.selectedLanguage"
+        >{{language.label}}</option>
+      </select>
+
+      <label>Choose a template</label>
+      <Templates :value="config.selectedTemplate" @input="handleTemplateChange" />
     </div>
 
-    <div class="row">
-      <div class="col">
-        <label>Font Size</label>
-        <RangeInput
-          v-model="config.fontSize"
-          :min="10"
-          :max="40"
-          :value="config.fontSize"
-          @input="propagateChange"
-        />
-      </div>
-      <div class="col">
-        <label>Font family</label>
-        <select
-          class="form-control"
-          v-model="config.fontFamily"
-          @input="propagateChange"
-          style="max-width: 120px"
-        >
-          <option
-            v-for="font in fontFamilies"
-            :value="font.value"
-            :selected="font.value == config.fontFamily"
-            :key="font.value"
-          >{{font.label}}</option>
-        </select>
-      </div>
-    </div>
+    <div class="advancedSettings">
+      <div class="header">Additonal settings</div>
+      <div class="content">
+        <div class="row">
+          <div class="col">
+            <label>Border Theme</label>
+            <select class="form-control" @input="(e) => changeBorderTheme(e.target.value)">
+              <option
+                v-for="borderTheme in borderThemes"
+                :key="borderTheme.value"
+                :value="borderTheme.value"
+                :selected="borderTheme.value == config.selectedBorderTheme"
+              >{{borderTheme.label}}</option>
+            </select>
+          </div>
+          <div class="col">
+            <label>Editor Theme</label>
+            <select
+              class="form-control"
+              @input="(e) => changeEditorTheme(e.target.value)"
+              style="max-width: 120px"
+            >
+              <option
+                v-for="theme in hljsThemes"
+                :value="theme.value"
+                :selected="theme.value == config.selectedEditorTheme"
+                :key="theme.value"
+              >{{theme.label}}</option>
+            </select>
+          </div>
+        </div>
 
-    <div class="row">
-      <div class="col">
-        <ColorPicker v-model="config.backgroundColor" @input="propagateChange" />
-      </div>
+        <div class="row">
+          <div class="col">
+            <label>Font Size</label>
+            <RangeInput
+              v-model="config.fontSize"
+              :min="10"
+              :max="40"
+              :value="config.fontSize"
+              @input="propagateChange"
+            />
+          </div>
+          <div class="col">
+            <label>Font family</label>
+            <select
+              class="form-control"
+              v-model="config.fontFamily"
+              @input="propagateChange"
+              style="max-width: 120px"
+            >
+              <option
+                v-for="font in fontFamilies"
+                :value="font.value"
+                :selected="font.value == config.fontFamily"
+                :key="font.value"
+              >{{font.label}}</option>
+            </select>
+          </div>
+        </div>
 
-      <div class="col">
-        <label>Rounded Corners</label>
-        <RangeInput
-          v-model="config.borderRadius"
-          :min="0"
-          :max="30"
-          :value="config.borderRadius"
-          @input="propagateChange"
-        />
-      </div>
-    </div>
+        <div class="row">
+          <div class="col">
+            <ColorPicker
+              v-model="config.backgroundColor"
+              @input="propagateChange"
+              :value="config.backgroundColor"
+            />
+          </div>
 
-    <div class="row">
-      <div class="col">
-        <label>Horizontal gap</label>
-        <RangeInput
-          v-model="config.paddingX"
-          :min="0"
-          :max="100"
-          :value="config.paddingX"
-          @input="propagateChange"
-        />
-      </div>
+          <div class="col">
+            <label>Rounded Corners</label>
+            <RangeInput
+              v-model="config.borderRadius"
+              :min="0"
+              :max="30"
+              :value="config.borderRadius"
+              @input="propagateChange"
+            />
+          </div>
+        </div>
 
-      <div class="col">
-        <label>Vertical gap</label>
-        <RangeInput
-          v-model="config.paddingY"
-          :min="0"
-          :max="100"
-          :value="config.paddingY"
-          @input="propagateChange"
-        />
+        <div class="row">
+          <div class="col">
+            <label>Horizontal gap</label>
+            <RangeInput
+              v-model="config.paddingX"
+              :min="0"
+              :max="100"
+              :value="config.paddingX"
+              @input="propagateChange"
+            />
+          </div>
+
+          <div class="col">
+            <label>Vertical gap</label>
+            <RangeInput
+              v-model="config.paddingY"
+              :min="0"
+              :max="100"
+              :value="config.paddingY"
+              @input="propagateChange"
+            />
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column">
+          <label>Stack Themes(BETA)</label>
+          <select
+            class="form-control"
+            @input="(e) => changeStackTheme(e.target.value)"
+            style="max-width: 120px"
+          >
+            <option
+              v-for="theme in stackThemes"
+              :value="theme.value"
+              :selected="theme.value == config.selectedStackTheme"
+              :key="theme.value"
+            >{{theme.label}}</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -154,8 +184,14 @@ export default {
         { label: "Theme 4", value: "theme-4" },
       ],
 
+      stackThemes: [
+        { label: "None", value: "none" },
+        { label: "Scaterred", value: "theme-1" },
+        { label: "Stacked", value: "theme-2" },
+      ],
+
       fontFamilies: [
-        { label: "Fire Code", value: '"Fira Code", monospace' },
+        { label: "Fira Code", value: '"Fira Code", monospace' },
         { label: "Source Code Pro", value: '"Source Code Pro", monospace' },
         { label: "Inconsolata", value: '"Inconsolata", monospace' },
         { label: "Ubuntu Mono", value: '"Ubuntu Mono", monospace' },
@@ -184,6 +220,7 @@ export default {
       link.type = "text/css";
       link.href = "/hljs-themes/" + themeFileName + ".css";
       head.appendChild(link);
+      this.$emit("editorThemeChange", themeFileName);
     },
 
     changeBorderTheme(themeName) {
@@ -191,13 +228,21 @@ export default {
       this.propagateChange();
     },
 
+    changeStackTheme(themeName) {
+      this.config.selectedStackTheme = themeName;
+      this.$emit("stackThemeChange", themeName);
+    },
+
     changeLanguage(languageName) {
       this.config.selectedLanguage = languageName;
       this.$emit("languageChange", languageName);
     },
 
-    handleTemplateChange(templateName) {
-      this.$emit("templateChange", templateName);
+    handleTemplateChange(template) {
+      this.$emit("templateChange", template.name);
+      Object.keys(template).forEach((key) => {
+        this.config[key] = template[key];
+      });
     },
 
     toggleConfig() {
@@ -241,6 +286,7 @@ export default {
   display: flex;
   flex-direction: column;
   transition: all 0.2s ease-in-out;
+  user-select: none;
 
   &.--hidden {
     transform: translateX(100%);
@@ -287,10 +333,36 @@ export default {
     margin-left: 0.5rem;
   }
 
+  .generalSettings {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .advancedSettings {
+    margin-top: 0.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: darken(#3f3b41, 5);
+
+    .header {
+      color: #3f3b41;
+      background-color: white;
+      padding: 0.5rem 0;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .content {
+      padding-top: 0.5rem;
+    }
+  }
+
   .actionBtnContainer {
     width: 100%;
     display: flex;
-    flex-grow: 1;
+    // flex-grow: 1;
 
     .actionBtn {
       outline: none;
@@ -324,14 +396,6 @@ export default {
         text-align: center;
       }
     }
-  }
-}
-
-.row {
-  display: flex;
-
-  .col {
-    flex: 1;
   }
 }
 </style>
