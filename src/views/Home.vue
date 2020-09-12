@@ -48,12 +48,13 @@
 </template>
 
 <script>
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
 import hljs from "highlight.js";
 import { saveAs } from "file-saver";
 import ConfigPanel from "@/components/ConfigPanel";
 import { templates } from "@/data";
 import { fluctuateRgb } from "@/helper";
+import domtoimage from "dom-to-image";
 
 export default {
   name: "Home",
@@ -87,10 +88,14 @@ export default {
 
   methods: {
     toCanvas() {
-      html2canvas(document.querySelector("#screenshot")).then((canvas) => {
-        canvas.toBlob(function (blob) {
-          saveAs(blob, "prettycodes.png");
-        });
+      // html2canvas(document.querySelector("#screenshot")).then((canvas) => {
+      //   canvas.toBlob(function (blob) {
+      //     saveAs(blob, "prettycodes.png");
+      //   });
+      // });
+
+      domtoimage.toBlob(document.querySelector("#screenshot")).then((blob) => {
+        saveAs(blob, "prettycodes.png");
       });
     },
 

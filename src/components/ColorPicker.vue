@@ -26,6 +26,7 @@ export default {
     return {
       val: this.value,
       swatches: [
+        '',
         "white",
         "#26A69A",
         "#66BB6A",
