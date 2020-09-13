@@ -86,7 +86,7 @@ import hljs from "highlight.js";
 import ConfigPanel from "@/components/ConfigPanel";
 import { templates } from "@/data";
 import { fluctuateRgb, downloadImage } from "@/helper";
-import domtoimage from "dom-to-image";
+import domtoimage from "dom-to-image-more";
 
 export default {
   name: "Home",
