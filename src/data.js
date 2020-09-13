@@ -10,8 +10,36 @@ export const templates = [
         paddingY: 55,
         borderRadius: 5,
         backgroundColor: "",
-        selectedStackTheme: 'theme-1'
+        selectedStackTheme: 'theme-1',
+        shadow: false,
+        showLanguageName: false,
+        transform3d: {
+            x: 0,
+            y: 0,
+            z: 0,
+        }
     },
+
+    {
+        name: "temp-6",
+        selectedEditorTheme: "vs2015",
+        fontSize: 14,
+        selectedBorderTheme: "theme-1",
+        fontFamily: '"Fira Code", monospace',
+        paddingX: 0,
+        paddingY: 23,
+        borderRadius: 16,
+        backgroundColor: "",
+        selectedStackTheme: 'theme-2',
+        shadow: true,
+        showLanguageName: true,
+        transform3d: {
+            x: -12,
+            y: 20,
+            z: 6,
+        }
+    },
+
 
     {
         name: "temp-1",
@@ -23,7 +51,14 @@ export const templates = [
         paddingY: 50,
         borderRadius: 5,
         backgroundColor: "#2980b9",
-        selectedStackTheme: 'none'
+        selectedStackTheme: 'none',
+        shadow: false,
+        showLanguageName: false,
+        transform3d: {
+            x: 0,
+            y: 0,
+            z: 0,
+        }
     },
 
     {
@@ -36,7 +71,14 @@ export const templates = [
         paddingY: 40,
         borderRadius: 1,
         backgroundColor: "#2ecc70",
-        selectedStackTheme: 'none'
+        selectedStackTheme: 'none',
+        shadow: false,
+        showLanguageName: false,
+        transform3d: {
+            x: 0,
+            y: 0,
+            z: 0,
+        }
     },
 
     {
@@ -49,7 +91,14 @@ export const templates = [
         paddingY: 45,
         borderRadius: 5,
         backgroundColor: "#BDBDBD",
-        selectedStackTheme: 'none'
+        selectedStackTheme: 'none',
+        shadow: false,
+        showLanguageName: false,
+        transform3d: {
+            x: 0,
+            y: 0,
+            z: 0,
+        }
     },
 
     {
@@ -62,7 +111,14 @@ export const templates = [
         paddingY: 60,
         borderRadius: 5,
         backgroundColor: "#ef5350",
-        selectedStackTheme: 'none'
+        selectedStackTheme: 'none',
+        shadow: false,
+        showLanguageName: false,
+        transform3d: {
+            x: 0,
+            y: 0,
+            z: 0,
+        }
     },
 
     {
@@ -75,6 +131,13 @@ export const templates = [
         paddingY: 55,
         borderRadius: 5,
         backgroundColor: "",
-        selectedStackTheme: 'theme-1'
+        selectedStackTheme: 'theme-1',
+        shadow: false,
+        showLanguageName: false,
+        transform3d: {
+            x: 0,
+            y: 0,
+            z: 0,
+        }
     }
 ];

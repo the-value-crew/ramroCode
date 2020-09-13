@@ -13,10 +13,10 @@
       <span class="heart">❤</span>
       at
       <a
-        href="https://github.com/bibhuticoder"
+        href="https://github.com/the-value-crew"
         target="_blank"
         rel="noopener noreferrer"
-      >Tvc-labs</a>
+      >TVC-labs</a>
     </div>
 
     <div class="codePanel" :style="codePanelCss">
@@ -31,7 +31,7 @@
         class-name-handle="resizeHandle"
       >
         <div id="screenshot" :style="screenshotInlineCss">
-          <pre id="code"><div class="stack --first" :class="'--' + config.selectedStackTheme" ref="stackOne"></div><div
+          <pre id="code" :style="codeInlineCss"><div class="stack --first" :class="'--' + config.selectedStackTheme" ref="stackOne"></div><div
   class="stack --second"
   :class="'--' + config.selectedStackTheme"
   ref="stackTwo"
@@ -48,6 +48,8 @@
           <div
   v-if="config.showLanguageName"
   class="languageName"
+  contenteditable
+  spellcheck="false"
 >{{config.selectedLanguage | humanize}}</div>
         </div><div
   ref="codeEditor"
@@ -68,7 +70,7 @@
       ref="configPanel"
       v-model="config"
       :value="config"
-      @download="toCanvas()"
+      @download="handleDownload"
       @languageChange="handleLanguageChange"
       @templateChange="handleTemplateChange"
       @editorThemeChange="handleEditorThemeChange"
@@ -78,18 +80,17 @@
 </template>
 
 <script>
+import Vue from "vue";
 import hljs from "highlight.js";
-import { saveAs } from "file-saver";
+// import { saveAs } from "file-saver";
 import ConfigPanel from "@/components/ConfigPanel";
 import { templates } from "@/data";
-import { fluctuateRgb } from "@/helper";
+import { fluctuateRgb, downloadImage } from "@/helper";
 import domtoimage from "dom-to-image";
-import { PerfectScrollbar } from "vue2-perfect-scrollbar";
-import "vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css";
 
 export default {
   name: "Home",
-  components: { ConfigPanel, PerfectScrollbar },
+  components: { ConfigPanel },
   data() {
     return {
       codeText: null,
@@ -112,6 +113,13 @@ export default {
         zoom: 1,
         shadow: false,
         showLanguageName: false,
+        transform3d: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+        downloadLoading: false,
+        downloadImageQuality: 0.9,
       },
     };
   },
@@ -121,10 +129,54 @@ export default {
   },
 
   methods: {
-    toCanvas() {
-      domtoimage.toBlob(document.querySelector("#screenshot")).then((blob) => {
-        saveAs(blob, "ramrocode.png");
-      });
+    handleDownload(type) {
+      if (!this.config.downloadLoading) {
+        this.config.downloadLoading = true;
+        let node = document.querySelector("#screenshot");
+
+        if (type == "Copy") {
+          domtoimage
+            .toBlob(node)
+            .then(async (blob) => {
+              try {
+                const { state } = await navigator.permissions.query({
+                  name: "clipboard-write",
+                });
+                if (state === "granted") {
+                  navigator.clipboard.write([
+                    new window.ClipboardItem({ [blob.type]: blob }),
+                  ]);
+                  alert("📋 Copied to clipboard");
+                }
+              } catch (error) {
+                console.log(error);
+                alert(
+                  "Sorry you browser doesn't support this feature. Downlaod the image instead 🙂"
+                );
+              }
+
+              this.config.downloadLoading = false;
+            })
+            .catch(() => {
+              alert("Oops, something went wrong!");
+              this.config.downloadLoading = false;
+            });
+          return;
+        }
+
+        domtoimage["to" + type](
+          node,
+          type === "Jpeg" ? { quality: this.config.downloadImageQuality } : null
+        )
+          .then((dataUrl) => {
+            downloadImage(dataUrl, type.toLowerCase());
+            this.config.downloadLoading = false;
+          })
+          .catch(() => {
+            alert("Oops, something went wrong!");
+            this.config.downloadLoading = false;
+          });
+      }
     },
 
     copyImage() {
@@ -192,7 +244,8 @@ export default {
       let template = templates.find((t) => t.name == templateName);
       if (template) {
         Object.keys(template).forEach((key) => {
-          this.config[key] = template[key];
+          // this.config[key] = template[key];
+          Vue.set(this.config, key, template[key]);
         });
         this.$refs.configPanel.changeEditorTheme(
           this.config.selectedEditorTheme
@@ -212,7 +265,13 @@ export default {
     },
 
     codePanelCss() {
+      this.config.transform3d;
       return `transform: scale(${this.config.zoom})`;
+    },
+
+    codeInlineCss() {
+      return `transform: rotateX(${this.config.transform3d.x}deg) rotateY(${this.config.transform3d.y}deg) rotateZ(${this.config.transform3d.z}deg);
+    `;
     },
 
     codeEditorInlineCss() {
@@ -226,7 +285,7 @@ export default {
         extraCss += `box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3),0 15px 12px rgba(0, 0, 0, 0.22);`;
       return `
         font-size: ${this.config.fontSize}px;
-        font-family: ${this.config.fontFamily};
+        font-family: ${this.config.fontFamily} !important;
         border-bottom-left-radius: ${this.config.borderRadius}px;
         border-bottom-right-radius: ${this.config.borderRadius}px;
         ${extraCss}
@@ -242,6 +301,7 @@ export default {
 
     screenshotInlineCss() {
       return `
+        border-radius: ${this.config.borderRadius}px;
         background-color: ${this.config.backgroundColor};
         padding: ${this.config.paddingY || 0}px ${this.config.paddingX || 0}px;
       `;
@@ -524,6 +584,7 @@ export default {
           padding: 1.5rem 1rem;
           outline: none;
           white-space: break-spaces;
+          overflow: hidden;
           transition: all 0.2s ease;
 
           //   background-size: 30px 30px;

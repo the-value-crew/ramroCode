@@ -8,16 +8,28 @@
         ></i>
       </div>
 
-      <div class="shortcutBtn" @click="zoom(-1)">
-        <i class="fal fa-search-minus"></i>
+      <div class="topSection">
+        <div class="shortcutBtn" @click="zoom(-1)">
+          <i class="fal fa-search-minus"></i>
+        </div>
+
+        <div class="shortcutBtn">
+          <span class="btnText">{{Math.floor(config.zoom * 100)}}%</span>
+        </div>
+
+        <div class="shortcutBtn" @click="zoom(1)">
+          <i class="fal fa-search-plus"></i>
+        </div>
       </div>
 
-      <div class="shortcutBtn">
-        <span class="btnText">{{Math.floor(config.zoom * 100)}}%</span>
-      </div>
+      <div class="bottomSection" v-if="!config.visible">
+        <div class="shortcutBtn" @click="handleDownload('Copy')" title="Copy to clipboard">
+          <i class="fal fa-copy"></i>
+        </div>
 
-      <div class="shortcutBtn" @click="zoom(1)">
-        <i class="fal fa-search-plus"></i>
+        <div class="shortcutBtn" @click="handleDownload('Png')" title="Download image">
+          <i class="fal fa-download"></i>
+        </div>
       </div>
     </div>
 
@@ -38,8 +50,8 @@
       <Templates :value="config.selectedTemplate" @input="handleTemplateChange" />
     </div>
 
-    <div class="advancedSettings">
-      <div class="header">Additonal settings</div>
+    <div class="header">Additional settings</div>
+    <perfect-scrollbar class="advancedSettings">
       <div class="content">
         <div style="display: flex; flex-direction: column">
           <label>Editor Theme</label>
@@ -138,7 +150,7 @@
             <RangeInput
               v-model="config.paddingX"
               :min="0"
-              :max="100"
+              :max="200"
               :value="config.paddingX"
               @input="propagateChange"
             />
@@ -149,7 +161,7 @@
             <RangeInput
               v-model="config.paddingY"
               :min="0"
-              :max="100"
+              :max="200"
               :value="config.paddingY"
               @input="propagateChange"
             />
@@ -160,28 +172,90 @@
           <div class="col">
             <div class="checkboxWrapper">
               <input type="checkbox" id="showLanguageName" v-model="config.showLanguageName" />
-              <label for="showLanguageName">Show language</label>
+              <label for="showLanguageName">Show Language</label>
             </div>
           </div>
           <div class="col">
             <div class="checkboxWrapper">
               <input type="checkbox" id="shadow" v-model="config.shadow" />
-              <label for="shadow">Shadow</label>
+              <label for="shadow">Enable Shadow</label>
             </div>
           </div>
         </div>
+
+        <div>
+          <label>3D Transformation</label>
+          <RangeInput
+            v-model="config.transform3d.x"
+            :value="config.transform3d"
+            :min="-360"
+            :max="360"
+            dotLabel="X: "
+            dotWidth="26"
+            @input="propagateChange"
+          />
+          <RangeInput
+            v-model="config.transform3d.y"
+            :value="config.transform3d"
+            :min="-360"
+            :max="360"
+            dotLabel="Y: "
+            dotWidth="26"
+            @input="propagateChange"
+          />
+          <RangeInput
+            v-model="config.transform3d.z"
+            :value="config.transform3d"
+            :min="-360"
+            :max="360"
+            dotLabel="Z: "
+            dotWidth="26"
+            @input="propagateChange"
+          />
+        </div>
       </div>
-    </div>
+    </perfect-scrollbar>
 
     <div class="actionBtnContainer">
-      <button class="actionBtn" @click="handleDownload()">
-        <i class="fal fa-download"></i>
-        <span>Download Image</span>
-      </button>
-      <button class="actionBtn" @click="handleDownload()">
-        <i class="fal fa-cloud-upload"></i>
-        <span>Upload to cloud</span>
-      </button>
+      <div class="loading" v-if="config.downloadLoading">
+        <i class="fal fa-spinner fa-spin"></i>
+      </div>
+
+      <div class="topSection">
+        <div class="actionBtn" @click="handleDownload('Png')">
+          <i class="fal fa-download"></i>
+          <span>PNG</span>
+        </div>
+
+        <div class="actionBtn" @click="handleDownload('Svg')">
+          <i class="fal fa-download"></i>
+          <span>SVG</span>
+        </div>
+
+        <div class="actionBtn" @click="handleDownload('Copy')">
+          <i class="fal fa-copy"></i>
+          <span>Copy to clipboard</span>
+        </div>
+      </div>
+
+      <div class="bottomSection">
+        <div class="actionBtn" @click="handleDownload('Jpeg')">
+          <i class="fal fa-download"></i>
+          <span>JPEG</span>
+        </div>
+        <div class="imageQuality">
+          with
+          <select v-model="config.downloadImageQuality">
+            <option
+              v-for="i in 10"
+              :key="i"
+              :value="i/10"
+              :selected="config.downloadImageQuality === i/10"
+            >{{i * 10}}%</option>
+          </select>
+          Quality
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -241,8 +315,9 @@ export default {
       this.$emit("input", this.config);
     },
 
-    handleDownload() {
-      this.$emit("download");
+    handleDownload(type) {
+      this.$emit("download", type);
+      // console.log(type);
     },
 
     changeEditorTheme(themeFileName) {
@@ -307,7 +382,7 @@ export default {
 
 <style lang="scss" scoped>
 .cpanel {
-  width: 250px;
+  width: 300px;
   height: 100%;
   position: fixed;
   right: 0;
@@ -328,7 +403,8 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
-    transform: translate(-35px, 10%);
+    height: 100%;
+    transform: translateX(-35px);
     color: #3f3b41;
     display: flex;
     flex-direction: column;
@@ -344,7 +420,7 @@ export default {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-weight: bold;
+        // font-weight: bold;
       }
 
       .btnText {
@@ -362,7 +438,16 @@ export default {
         color: white;
         transform: translateX(10px);
         margin-bottom: 50px;
+        margin-top: 20px;
       }
+    }
+
+    .bottomSection {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 1rem;
     }
   }
 
@@ -384,6 +469,7 @@ export default {
 
   .checkboxWrapper {
     display: flex;
+    margin-bottom: 1rem;
     label {
       user-select: none;
       align-self: center;
@@ -398,64 +484,92 @@ export default {
     display: flex;
     flex-direction: column;
     padding: 0.5rem;
+    padding-bottom: 0;
+  }
+
+  .header {
+    color: white;
+    background-color: darken($color: #3f3b41, $amount: 10);
+    padding: 0.5rem 0;
+    text-align: center;
+    font-size: 0.9rem;
+    // font-weight: bold;
   }
 
   .advancedSettings {
-    margin-top: 0.25rem;
     flex: 1;
     display: flex;
     flex-direction: column;
     background-color: darken(#3f3b41, 5);
 
-    .header {
-      color: #3f3b41;
-      background-color: white;
-      padding: 0.5rem 0;
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: bold;
-    }
-
     .content {
-      padding: 0.5rem;
+      padding: 0.75rem;
     }
   }
 
   .actionBtnContainer {
+    position: relative;
     width: 100%;
+    height: 60px;
     display: flex;
-    // flex-grow: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
 
     .actionBtn {
-      outline: none;
-      border: 1px solid white;
-      background-color: transparent;
-      width: 50%;
-      color: white;
+      font-size: 0.8rem;
       cursor: pointer;
-      padding: 0.5rem;
-      align-self: flex-end;
+      padding: 0.25rem 0.5rem;
       display: flex;
-      text-align: center;
-      flex-direction: column;
-
-      &:first-child {
-        border-left: none;
-        border-right: none;
-      }
-
-      &:last-child {
-        border-right: none;
-      }
+      border-radius: 3px;
 
       i {
-        margin: 0 auto;
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
+        align-self: center;
+        margin-right: 5px;
       }
 
       span {
-        text-align: center;
+        align-self: center;
+      }
+
+      select {
+        margin: 0 0.25rem;
+      }
+
+      &:hover {
+        background-color: darken($color: #3f3b41, $amount: 2);
+      }
+    }
+
+    .topSection {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bottomSection {
+      display: flex;
+
+      .imageQuality {
+        margin-left: 5px;
+        font-size: 0.8rem;
+      }
+    }
+
+    .loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: darken($color: #3f3b41, $amount: 10);
+      opacity: 0.9;
+      display: flex;
+      justify-content: center;
+
+      i {
+        font-size: 2rem;
+        align-self: center;
+        color: white;
       }
     }
   }

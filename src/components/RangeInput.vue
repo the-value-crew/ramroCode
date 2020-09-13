@@ -1,5 +1,6 @@
 <template>
   <div class="rangeInputWrapper" ref="rangeInputWrapper">
+    <span class="label" v-if="dotLabel">{{dotLabel}}</span>
     <vue-slider
       ref="slider"
       :min="min"
@@ -14,7 +15,7 @@
       v-model="val"
     >
       <template v-slot:dot>
-        <div class="custom-dot">{{val}}</div>
+        <div class="custom-dot" :style="dotStyle">{{val}}</div>
       </template>
     </vue-slider>
   </div>
@@ -24,7 +25,7 @@
 export default {
   name: "RangeInput",
   components: {},
-  props: ["min", "max", "value"],
+  props: ["min", "max", "value", "dotLabel", "dotWidth"],
   data() {
     return {
       val: this.value,
@@ -37,11 +38,18 @@ export default {
     },
   },
 
-  watch:{
-    value(oldVal, newVal){
-      if(newVal != oldVal) this.val = newVal;
-    }
-  }
+  computed: {
+    dotStyle() {
+      if (this.dotWidth) return "width: " + this.dotWidth + "px";
+      return "";
+    },
+  },
+
+  watch: {
+    value(newVal, oldVal) {
+      if (newVal != oldVal) this.val = newVal;
+    },
+  },
 };
 </script>
 
@@ -50,8 +58,10 @@ $themeColor: #3f3b41;
 @import "vue-slider-component/lib/theme/default.scss";
 
 .rangeInputWrapper {
+  width: 100%;
   margin-bottom: 1rem;
   margin-top: 0.5rem;
+  display: flex;
 
   .custom-dot {
     background-color: white;
@@ -65,6 +75,17 @@ $themeColor: #3f3b41;
     line-height: 20px;
     font-weight: bold;
     cursor: pointer;
+  }
+
+  .label {
+    align-self: center;
+    font-size: 0.8rem;
+    margin-right: 10px;
+  }
+
+  .vue-slider {
+    flex: 1;
+    align-self: center;
   }
 }
 </style>
