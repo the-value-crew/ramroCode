@@ -1,13 +1,34 @@
 <template>
-  <div class="home">
+  <perfect-scrollbar class="home">
     <div class="logo">
       <img src="@/assets/logo.svg" />
-      <span class="appName">CodeShot</span>
+      <span class="appName">RamroCode <span class="version">1.1.0</span> </span>
     </div>
 
-    <div class="appContainer">
-      <div id="screenshot" class="codeContainer" :style="screenshotInlineCss">
-        <pre id="code"><div class="stack --first" :class="'--' + config.selectedStackTheme" ref="stackOne"></div><div
+    <div class="credit">
+      Made with
+      <span class="heart">❤</span>
+      by
+      <a
+        href="https://github.com/bibhuticoder"
+        target="_blank"
+        rel="noopener noreferrer"
+      >bibhuti</a>
+    </div>
+
+    <div class="codePanel" :style="codePanelCss">
+      <vue-draggable-resizable
+        :w="500"
+        :h="400"
+        :x="codePanelPos.x"
+        :y="codePanelPos.y"
+        :min-width="200"
+        :min-height="200"
+        class-name="resizeRect"
+        class-name-handle="resizeHandle"
+      >
+        <div id="screenshot" :style="screenshotInlineCss">
+          <pre id="code"><div class="stack --first" :class="'--' + config.selectedStackTheme" ref="stackOne"></div><div
   class="stack --second"
   :class="'--' + config.selectedStackTheme"
   ref="stackTwo"
@@ -20,7 +41,8 @@
           <div class="dot dot-1"></div>
           <div class="dot dot-2"></div>
           <div class="dot dot-3"></div>
-        </div><div
+        </div><perfect-scrollbar
+  :options="{useBothWheelAxes: true}"
   ref="codeEditor"
   id="codeEditor"
   class="hljs code"
@@ -30,8 +52,9 @@
   @paste="(e) => handleCodeEditorPaste(e)"
   @input="handleCodeEditorChange"
   :style="codeEditorInlineCss"
-></div></pre>
-      </div>
+></perfect-scrollbar></pre>
+        </div>
+      </vue-draggable-resizable>
     </div>
 
     <ConfigPanel
@@ -44,7 +67,7 @@
       @editorThemeChange="handleEditorThemeChange"
       @stackThemeChange="handleStackThemeChange"
     />
-  </div>
+  </perfect-scrollbar>
 </template>
 
 <script>
@@ -55,10 +78,13 @@ import ConfigPanel from "@/components/ConfigPanel";
 import { templates } from "@/data";
 import { fluctuateRgb } from "@/helper";
 import domtoimage from "dom-to-image";
+// import prettier from "prettier";
+import { PerfectScrollbar } from "vue2-perfect-scrollbar";
+import "vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css";
 
 export default {
   name: "Home",
-  components: { ConfigPanel },
+  components: { ConfigPanel, PerfectScrollbar },
   data() {
     return {
       codeText: null,
@@ -77,7 +103,7 @@ export default {
         paddingY: 50,
         borderRadius: 5,
         backgroundColor: "#2980b9",
-        selectedTemplate: "temp-1",
+        selectedTemplate: "temp-default",
       },
     };
   },
@@ -107,6 +133,7 @@ export default {
         "var b = 13; \n" +
         "var result = a + b; \n" +
         "console.log(result);";
+      // this.codeText = prettier.format(this.codeText);
       this.codeHighlighted = hljs.highlight(
         this.config.selectedLanguage,
         this.codeText
@@ -167,6 +194,19 @@ export default {
   },
 
   computed: {
+    codePanelPos() {
+      let pos = {
+        x: window.innerWidth / 2 - 200 - 250,
+        y: window.innerHeight / 2 - 200,
+      };
+      if (pos.x <= 0) pos.x = 100;
+      return pos;
+    },
+
+    codePanelCss() {
+      return "";
+    },
+
     codeEditorInlineCss() {
       let extraCss = "";
       if (this.config.selectedBorderTheme === "none")
@@ -202,7 +242,76 @@ export default {
 
 
 <style lang="scss">
+.resizeHandle {
+  position: absolute;
+  background-color: white;
+  border: 3px solid #3f3b41;
+  border-radius: 50%;
+  height: 14px;
+  width: 14px;
+  box-sizing: border-box;
+  z-index: 1000;
+
+  &-tl {
+    transform: translate(-50%, -50%);
+    cursor: nw-resize;
+  }
+
+  &-tm {
+    left: 50%;
+    transform: translate(-50%, -70%);
+    cursor: n-resize;
+  }
+
+  &-tr {
+    right: 0;
+    transform: translate(50%, -50%);
+    cursor: ne-resize;
+  }
+
+  &-ml {
+    top: 50%;
+    left: 0;
+    transform: translate(-70%, -50%);
+    cursor: w-resize;
+  }
+
+  &-mr {
+    top: 50%;
+    right: 0;
+    transform: translate(70%, -50%);
+    cursor: e-resize;
+  }
+
+  &-bl {
+    top: 100%;
+    bottom: 0;
+    transform: translate(-50%, -50%);
+    cursor: sw-resize;
+  }
+
+  &-bm {
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 70%);
+    cursor: s-resize;
+  }
+
+  &-br {
+    right: 0;
+    bottom: 0;
+    transform: translate(50%, 50%);
+    cursor: se-resize;
+  }
+}
+
+.resizeRect {
+  border: 3px dashed #3f3b41;
+  z-index: 1000;
+}
+
 .home {
+  position: relative;
   width: 100%;
   height: 100%;
 
@@ -215,36 +324,53 @@ export default {
 
     img {
       align-self: center;
-      height: 48px;
+      height: 36px;
       width: auto;
-      margin-right: 0.5rem;
+      margin-right: 0.25rem;
     }
 
     .appName {
-      color: #00b2ff;
-      font-size: 24px;
+      color: #3f3b41;
+      font-size: 1rem;
       align-self: center;
+
+      .version {
+        font-size: 0.7rem;
+      }
     }
   }
 
-  .appContainer {
-    width: calc(100vw - 250px);
+  .credit {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    color: #3f3b41;
+    font-size: 0.8rem;
+    z-index: 1000;
+
+    .heart {
+      color: #d32f2f;
+    }
+
+    a {
+      color: #3f3b41;
+    }
+  }
+
+  .codePanel {
+    position: relative;
+    width: 100%;
     height: 100%;
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    .codeContainer {
-      padding: 10px;
-      // background-color: white;
-      min-width: 400px;
-      min-height: 110px;
-      resize: horizontal;
-      overflow: auto;
+    #screenshot {
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
       transition: background-color 0.2s ease;
-
       #code {
+        $borderHeight: 40px;
+
+        width: 100%;
+        height: 100%;
         margin-bottom: 0;
         margin-top: 0;
         position: relative;
@@ -309,11 +435,11 @@ export default {
         }
 
         #border {
-          height: 40px;
+          height: $borderHeight;
           margin: 0;
           padding: 0;
           padding-left: 0.5rem;
-          transform: translateY(1px);
+          // transform: translateY(1px);
           display: flex;
           transition: all 0.2s ease;
 
@@ -372,13 +498,15 @@ export default {
         }
 
         #codeEditor {
+          height: calc(100% - #{$borderHeight});
+          box-sizing: border-box;
           padding: 1.5rem 1rem;
           outline: none;
           transition: all 0.2s ease;
         }
 
-        // box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        //   0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
       }
     }
   }

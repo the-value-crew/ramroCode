@@ -70,6 +70,7 @@ export default {
   margin: 0.5rem;
   margin-bottom: 1rem;
   margin-top: 5px;
+  border: 1px solid white;
 
   &::after {
     display: block;
