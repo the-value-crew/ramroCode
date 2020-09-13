@@ -1,12 +1,27 @@
 <template>
   <div class="cpanel" :class="{'--hidden': !config.visible}">
-    <div class="generalSettings">
-      <div class="handle" @click="toggleConfig()">
+    <div class="shortcut">
+      <div class="shortcutBtn --handle" @click="toggleConfig()">
         <i
           class="fal"
           :class="{'fa-angle-right': config.visible, 'fa-angle-left': !config.visible}"
         ></i>
       </div>
+
+      <div class="shortcutBtn" @click="zoom(-1)">
+        <i class="fal fa-search-minus"></i>
+      </div>
+
+      <div class="shortcutBtn">
+        <span class="btnText">{{Math.floor(config.zoom * 100)}}%</span>
+      </div>
+
+      <div class="shortcutBtn" @click="zoom(1)">
+        <i class="fal fa-search-plus"></i>
+      </div>
+    </div>
+
+    <div class="generalSettings">
       <h1 class="title">Edit Panel</h1>
 
       <label>Language</label>
@@ -26,6 +41,18 @@
     <div class="advancedSettings">
       <div class="header">Additonal settings</div>
       <div class="content">
+        <div style="display: flex; flex-direction: column">
+          <label>Editor Theme</label>
+          <select class="form-control" @input="(e) => changeEditorTheme(e.target.value)">
+            <option
+              v-for="theme in hljsThemes"
+              :value="theme.value"
+              :selected="theme.value == config.selectedEditorTheme"
+              :key="theme.value"
+            >{{theme.label}}</option>
+          </select>
+        </div>
+
         <div class="row">
           <div class="col">
             <label>Border Theme</label>
@@ -39,16 +66,16 @@
             </select>
           </div>
           <div class="col">
-            <label>Editor Theme</label>
+            <label>Stack Theme</label>
             <select
               class="form-control"
-              @input="(e) => changeEditorTheme(e.target.value)"
+              @input="(e) => changeStackTheme(e.target.value)"
               style="max-width: 120px"
             >
               <option
-                v-for="theme in hljsThemes"
+                v-for="theme in stackThemes"
                 :value="theme.value"
-                :selected="theme.value == config.selectedEditorTheme"
+                :selected="theme.value == config.selectedStackTheme"
                 :key="theme.value"
               >{{theme.label}}</option>
             </select>
@@ -129,20 +156,19 @@
           </div>
         </div>
 
-        <div style="display: flex; flex-direction: column">
-          <label>Stack Themes(BETA)</label>
-          <select
-            class="form-control"
-            @input="(e) => changeStackTheme(e.target.value)"
-            style="max-width: 120px"
-          >
-            <option
-              v-for="theme in stackThemes"
-              :value="theme.value"
-              :selected="theme.value == config.selectedStackTheme"
-              :key="theme.value"
-            >{{theme.label}}</option>
-          </select>
+        <div class="row">
+          <div class="col">
+            <div class="checkboxWrapper">
+              <input type="checkbox" id="showLanguageName" v-model="config.showLanguageName" />
+              <label for="showLanguageName">Show language</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="checkboxWrapper">
+              <input type="checkbox" id="shadow" v-model="config.shadow" />
+              <label for="shadow">Shadow</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -205,6 +231,12 @@ export default {
   },
 
   methods: {
+    zoom(type) {
+      if (type === 1) this.config.zoom += 0.05;
+      else this.config.zoom -= 0.05;
+      this.propagateChange();
+    },
+
     propagateChange() {
       this.$emit("input", this.config);
     },
@@ -292,23 +324,45 @@ export default {
     transform: translateX(100%);
   }
 
-  .handle {
+  .shortcut {
     position: absolute;
     top: 0;
     left: 0;
-    transform: translate(-25px, 25%);
-    height: 30px;
-    width: 30px;
-    background-color: #3f3b41;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
+    transform: translate(-35px, 10%);
+    color: #3f3b41;
+    display: flex;
+    flex-direction: column;
 
-    i {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+    .shortcutBtn {
+      position: relative;
+      height: 30px;
+      width: 30px;
+      cursor: pointer;
+
+      i {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: bold;
+      }
+
+      .btnText {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: bold;
+        font-size: 0.8rem;
+      }
+
+      &.--handle {
+        background-color: #3f3b41;
+        border-radius: 5px;
+        color: white;
+        transform: translateX(10px);
+        margin-bottom: 50px;
+      }
     }
   }
 
@@ -323,19 +377,27 @@ export default {
     padding: 0.25rem 0.5rem;
     border-radius: 0.2rem;
     background-color: white;
-    margin: 0.5rem;
     margin-top: 0.15rem;
     margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  .checkboxWrapper {
+    display: flex;
+    label {
+      user-select: none;
+      align-self: center;
+    }
   }
 
   label {
     font-size: 0.8rem;
-    margin-left: 0.5rem;
   }
 
   .generalSettings {
     display: flex;
     flex-direction: column;
+    padding: 0.5rem;
   }
 
   .advancedSettings {
@@ -355,7 +417,7 @@ export default {
     }
 
     .content {
-      padding-top: 0.5rem;
+      padding: 0.5rem;
     }
   }
 

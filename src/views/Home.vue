@@ -2,23 +2,26 @@
   <perfect-scrollbar class="home">
     <div class="logo">
       <img src="@/assets/logo.svg" />
-      <span class="appName">RamroCode <span class="version">1.1.0</span> </span>
+      <span class="appName">
+        RamroCode
+        <span class="version">1.1.0</span>
+      </span>
     </div>
 
     <div class="credit">
       Made with
       <span class="heart">❤</span>
-      by
+      at
       <a
         href="https://github.com/bibhuticoder"
         target="_blank"
         rel="noopener noreferrer"
-      >bibhuti</a>
+      >Tvc-labs</a>
     </div>
 
     <div class="codePanel" :style="codePanelCss">
       <vue-draggable-resizable
-        :w="500"
+        :w="800"
         :h="400"
         :x="codePanelPos.x"
         :y="codePanelPos.y"
@@ -37,12 +40,16 @@
   class="hljs"
   :class="'--' + config.selectedBorderTheme"
   :style="borderInlineCss"
->
+><div class="dots">
           <div class="dot dot-1"></div>
           <div class="dot dot-2"></div>
           <div class="dot dot-3"></div>
-        </div><perfect-scrollbar
-  :options="{useBothWheelAxes: true}"
+</div>
+          <div
+  v-if="config.showLanguageName"
+  class="languageName"
+>{{config.selectedLanguage | humanize}}</div>
+        </div><div
   ref="codeEditor"
   id="codeEditor"
   class="hljs code"
@@ -52,7 +59,7 @@
   @paste="(e) => handleCodeEditorPaste(e)"
   @input="handleCodeEditorChange"
   :style="codeEditorInlineCss"
-></perfect-scrollbar></pre>
+></div></pre>
         </div>
       </vue-draggable-resizable>
     </div>
@@ -71,14 +78,12 @@
 </template>
 
 <script>
-// import html2canvas from "html2canvas";
 import hljs from "highlight.js";
 import { saveAs } from "file-saver";
 import ConfigPanel from "@/components/ConfigPanel";
 import { templates } from "@/data";
 import { fluctuateRgb } from "@/helper";
 import domtoimage from "dom-to-image";
-// import prettier from "prettier";
 import { PerfectScrollbar } from "vue2-perfect-scrollbar";
 import "vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css";
 
@@ -104,6 +109,9 @@ export default {
         borderRadius: 5,
         backgroundColor: "#2980b9",
         selectedTemplate: "temp-default",
+        zoom: 1,
+        shadow: false,
+        showLanguageName: false,
       },
     };
   },
@@ -114,26 +122,26 @@ export default {
 
   methods: {
     toCanvas() {
-      // html2canvas(document.querySelector("#screenshot")).then((canvas) => {
-      //   canvas.toBlob(function (blob) {
-      //     saveAs(blob, "prettycodes.png");
-      //   });
-      // });
-
       domtoimage.toBlob(document.querySelector("#screenshot")).then((blob) => {
-        saveAs(blob, "prettycodes.png");
+        saveAs(blob, "ramrocode.png");
       });
+    },
+
+    copyImage() {
+      // domtoimage.toBlob(document.querySelector("#screenshot")).then((blob) => {
+      //   // navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      // });
     },
 
     init() {
       this.$refs.configPanel.changeEditorTheme(this.config.selectedEditorTheme);
       this.codeText =
-        "// Simple program to calculate sum \n" +
-        "var a = 12; \n" +
-        "var b = 13; \n" +
-        "var result = a + b; \n" +
-        "console.log(result);";
-      // this.codeText = prettier.format(this.codeText);
+        "// RamroCode(1.1.0) - Make your code look beautiful \n\n" +
+        "var step1 = 'Copy and paste your code here'; \n\n" +
+        "var step2 = 'Choose a template or customize it yourself'; \n\n" +
+        "var step3 = 'Download/Copy image and use it on your blogs, videos, notes'; \n\n" +
+        "var step4 = 'Tell your friends about this awesome tool 😃' \n\n" +
+        "//Thank You";
       this.codeHighlighted = hljs.highlight(
         this.config.selectedLanguage,
         this.codeText
@@ -196,7 +204,7 @@ export default {
   computed: {
     codePanelPos() {
       let pos = {
-        x: window.innerWidth / 2 - 200 - 250,
+        x: window.innerWidth / 2 - 400 - 250 / 2,
         y: window.innerHeight / 2 - 200,
       };
       if (pos.x <= 0) pos.x = 100;
@@ -204,7 +212,7 @@ export default {
     },
 
     codePanelCss() {
-      return "";
+      return `transform: scale(${this.config.zoom})`;
     },
 
     codeEditorInlineCss() {
@@ -214,12 +222,14 @@ export default {
         border-top-left-radius: ${this.config.borderRadius}px;
         border-top-right-radius: ${this.config.borderRadius}px;
       `;
+      if (this.config.shadow)
+        extraCss += `box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3),0 15px 12px rgba(0, 0, 0, 0.22);`;
       return `
-        ${extraCss}
         font-size: ${this.config.fontSize}px;
+        font-family: ${this.config.fontFamily};
         border-bottom-left-radius: ${this.config.borderRadius}px;
         border-bottom-right-radius: ${this.config.borderRadius}px;
-        font-family: ${this.config.fontFamily};
+        ${extraCss}
       `;
     },
 
@@ -361,6 +371,7 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
+    transition: all 0.2s ease;
     #screenshot {
       height: 100%;
       width: 100%;
@@ -412,20 +423,20 @@ export default {
           &.--theme-2 {
             &.--first {
               top: unset;
-              width: 96%;
-              bottom: -8px;
-              left: 50%;
-              transform: translateX(-50%);
-              z-index: -1;
-            }
-
-            &.--second {
-              top: unset;
               width: 90%;
               bottom: -13px;
               left: 50%;
               transform: translateX(-50%);
               z-index: -2;
+            }
+
+            &.--second {
+              top: unset;
+              width: 96%;
+              bottom: -8px;
+              left: 50%;
+              transform: translateX(-50%);
+              z-index: -1;
             }
           }
 
@@ -439,18 +450,28 @@ export default {
           margin: 0;
           padding: 0;
           padding-left: 0.5rem;
-          // transform: translateY(1px);
           display: flex;
+          justify-content: space-between;
           transition: all 0.2s ease;
-
           $dotSize: 16px;
-          .dot {
-            height: $dotSize;
-            width: $dotSize;
-            background-color: white;
-            border-radius: 50%;
+
+          .dots {
+            display: flex;
             align-self: center;
-            margin: 0 5px;
+            .dot {
+              height: $dotSize;
+              width: $dotSize;
+              background-color: white;
+              border-radius: 50%;
+              align-self: center;
+              margin: 0 5px;
+            }
+          }
+
+          .languageName {
+            align-self: center;
+            font-size: 0.9rem;
+            margin-right: 1rem;
           }
 
           &.--none {
@@ -502,11 +523,19 @@ export default {
           box-sizing: border-box;
           padding: 1.5rem 1rem;
           outline: none;
+          white-space: break-spaces;
           transition: all 0.2s ease;
+
+          //   background-size: 30px 30px;
+          //   background-image: radial-gradient(
+          //     circle,
+          //     white 1px,
+          //     rgba(0, 0, 0, 0) 1px
+          //   );
         }
 
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        // box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3),
+        //   0 15px 12px rgba(0, 0, 0, 0.22);
       }
     }
   }

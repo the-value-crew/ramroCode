@@ -29,8 +29,13 @@ body {
 
 .row {
   display: flex;
+  // padding: 0 0.5rem;
 
   .col {
     flex: 1;
+
+    &:first-child {
+      padding-right: 0.5rem;
+    }
   }
 }

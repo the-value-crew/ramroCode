@@ -13,6 +13,10 @@ Vue.component('vue-draggable-resizable', VueDraggableResizable)
 Vue.component('VueSlider', VueSlider)
 Vue.config.productionTip = false
 
+// Filters
+import { registerFilters } from './filters';
+registerFilters();
+
 new Vue({
   router,
   store,

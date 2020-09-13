@@ -50,8 +50,8 @@ $themeColor: #3f3b41;
 @import "vue-slider-component/lib/theme/default.scss";
 
 .rangeInputWrapper {
-  margin: 0.5rem;
   margin-bottom: 1rem;
+  margin-top: 0.5rem;
 
   .custom-dot {
     background-color: white;
