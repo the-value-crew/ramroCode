@@ -4,10 +4,18 @@ import { getField, updateField } from 'vuex-map-fields';
 
 Vue.use(Vuex)
 
+const initialCode = "// RamroCode(1.1.0) - Make your code look beautiful \n\n" +
+  "var step1 = 'Copy and paste your code here'; \n\n" +
+  "var step2 = 'Choose a template or customize it yourself'; \n\n" +
+  "var step3 = 'Download/Copy image and use it on your blogs, videos, notes'; \n\n" +
+  "var step4 = 'Tell your friends about this awesome tool 😃' \n\n" +
+  "//Thank You";
+
 export default new Vuex.Store({
   state: {
     config: {
-      visible: true,
+      codeText: initialCode,
+      configVisible: true,
       selectedEditorTheme: "dracula",
       selectedBorderTheme: "theme-1",
       selectedStackTheme: "none",

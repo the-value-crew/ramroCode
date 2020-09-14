@@ -1,8 +1,8 @@
 <template>
-  <div class="cpanel" :class="{'--hidden': !visible}">
+  <div class="cpanel" :class="{'--hidden': !configVisible}">
     <div class="shortcut">
       <div class="shortcutBtn --handle" @click="toggleConfig()">
-        <i class="fal" :class="{'fa-angle-right': visible, 'fa-angle-left': !visible}"></i>
+        <i class="fal" :class="{'fa-angle-right': configVisible, 'fa-angle-left': !configVisible}"></i>
       </div>
 
       <div class="topSection">
@@ -19,7 +19,7 @@
         </div>
       </div>
 
-      <div class="bottomSection" v-if="!visible">
+      <div class="bottomSection" v-if="!configVisible">
         <div class="shortcutBtn" @click="handleDownload('Copy')" title="Copy to clipboard">
           <i class="fal fa-copy"></i>
         </div>
@@ -244,13 +244,13 @@ export default {
     },
 
     toggleConfig() {
-      this.visible = !this.visible;
+      this.configVisible = !this.configVisible;
     },
   },
 
   computed: {
     ...mapFields([
-      "config.visible",
+      "config.configVisible",
       "config.selectedTemplate",
       "config.selectedEditorTheme",
       "config.selectedBorderTheme",

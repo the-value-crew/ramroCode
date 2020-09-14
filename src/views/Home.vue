@@ -89,22 +89,12 @@ export default {
   components: { ConfigPanel },
   data() {
     return {
-      codeText: null,
       codeHighlighted: null,
       stackBaseColor: null,
     };
   },
 
-  created() {},
-
   mounted() {
-    this.codeText =
-      "// RamroCode(1.1.0) - Make your code look beautiful \n\n" +
-      "var step1 = 'Copy and paste your code here'; \n\n" +
-      "var step2 = 'Choose a template or customize it yourself'; \n\n" +
-      "var step3 = 'Download/Copy image and use it on your blogs, videos, notes'; \n\n" +
-      "var step4 = 'Tell your friends about this awesome tool 😃' \n\n" +
-      "//Thank You";
     this.reHighlight();
   },
 
@@ -120,39 +110,6 @@ export default {
         this.downloadLoading = false;
       }
     },
-
-    // handleDownload(type) {
-    //   if (!this.downloadLoading) {
-    //     this.downloadLoading = true;
-    //     let node = document.querySelector("#screenshot");
-
-    //     if (type == "Copy") {
-    //       domtoimage
-    //         .toBlob(node)
-    //         .then((blob) => {
-    //           copyBlobToClipboard(blob);
-    //           this.downloadLoading = false;
-    //         })
-    //         .catch(() => {
-    //           alert("Oops, something went wrong!");
-    //           this.downloadLoading = false;
-    //         });
-    //       return;
-    //     }
-
-    //     let option =
-    //       type === "Jpeg" ? { quality: this.downloadImageQuality } : null;
-    //     domtoimage["to" + type](node, option)
-    //       .then((dataUrl) => {
-    //         downloadImage(dataUrl, type.toLowerCase());
-    //         this.downloadLoading = false;
-    //       })
-    //       .catch(() => {
-    //         alert("Oops, something went wrong!");
-    //         this.downloadLoading = false;
-    //       });
-    //   }
-    // },
 
     async handleCodeEditorPaste(e) {
       e.preventDefault();
@@ -175,7 +132,8 @@ export default {
 
   computed: {
     ...mapFields([
-      "config.visible",
+      "config.configVisible",
+      "config.codeText",
       "config.selectedTemplate",
       "config.selectedEditorTheme",
       "config.selectedBorderTheme",
