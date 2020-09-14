@@ -4,12 +4,12 @@
 
 <h1 align="center">RamroCode <span style="font-size: 10px"> 1.1.0</span> <h1>
 
-<p align="center">  
+<p align="center" style="font-size: 16px">  
 ✨ Beautiful screenshot of your code snippets
 </p>
 
-<p align="center"> 
-    <a href="amrocode.netlify.app/#/" target="_blank" style="font-size: 16px; margin: 0 auto"> 👉 ramrocode.netlify.app</a>
+<p align="center" style="font-size: 16px"> 
+    <a href="ramrocode.netlify.app/#/" target="_blank" style="font-size: 16px; margin: 0 auto"> 👉 ramrocode.netlify.app</a>
 </p>
 
 ## Demo 🌟
