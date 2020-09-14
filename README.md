@@ -38,3 +38,7 @@ Its a vuejs based project. If you have nodejs and vue-cli installed, you are alr
 ## Contribution 👋
 
 If you would like to contribute to this awesome tool, please make a pull request. Or if you have some cool features in mind, please [create an issue](https://github.com/the-value-crew/ramroCode/issues/new). 
+
+## License
+[GPL 3.0](https://opensource.org/licenses/GPL-3.0)
+Copyright (c) 2020-present
