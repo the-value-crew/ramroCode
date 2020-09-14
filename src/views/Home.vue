@@ -179,12 +179,6 @@ export default {
       }
     },
 
-    copyImage() {
-      // domtoimage.toBlob(document.querySelector("#screenshot")).then((blob) => {
-      //   // navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      // });
-    },
-
     init() {
       this.$refs.configPanel.changeEditorTheme(this.config.selectedEditorTheme);
       this.codeText =
@@ -309,7 +303,6 @@ export default {
   },
 };
 </script>
-
 
 <style lang="scss">
 .resizeHandle {

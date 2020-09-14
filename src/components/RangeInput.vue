@@ -80,7 +80,7 @@ $themeColor: #3f3b41;
   .label {
     align-self: center;
     font-size: 0.8rem;
-    margin-right: 10px;
+    margin-right: 5px;
   }
 
   .vue-slider {

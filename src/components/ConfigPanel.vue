@@ -382,7 +382,7 @@ export default {
 
 <style lang="scss" scoped>
 .cpanel {
-  width: 300px;
+  width: 275px;
   height: 100%;
   position: fixed;
   right: 0;
