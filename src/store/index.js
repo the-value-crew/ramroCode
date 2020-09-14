@@ -41,16 +41,16 @@ let firstTimeConfig = {
   downloadImageQuality: 0.9,
 }
 // check if url contains config
-if (window.location.hash.includes('?data=')) {
-  try {
-    let hashData = JSON.parse(decodeURIComponent(window.location.hash.slice(8)));
-    localStorage.removeItem('ramroCode-Config');
-    firstTimeConfig = hashData;
-    alert('success');
-  } catch (e) {
-    console.log(e);
-  }
-}
+// if (window.location.hash.includes('?data=')) {
+//   try {
+//     let hashData = JSON.parse(decodeURIComponent(window.location.hash.slice(8)));
+//     localStorage.removeItem('ramroCode-Config');
+//     firstTimeConfig = hashData;
+//     alert('success');
+//   } catch (e) {
+//     console.log(e);
+//   }
+// }
 
 export default new Vuex.Store({
   state: {
