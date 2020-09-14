@@ -78,7 +78,7 @@
 
 <script>
 import ConfigPanel from "@/components/ConfigPanel";
-import { fluctuateRgb } from "@/helpers/core";
+import { fluctuateRgb, copyConfigToClipboard } from "@/helpers/core";
 import { domToImage } from "@/helpers/dom-to-image";
 import { templates } from "@/data";
 import { mapFields } from "vuex-map-fields";
@@ -100,6 +100,13 @@ export default {
 
   methods: {
     async handleDownload(type) {
+      if (type === "Config") {
+        copyConfigToClipboard(
+          JSON.stringify({ ...this.$store.state.config, codeText: null })
+        );
+        return;
+      }
+
       if (!this.downloadLoading) {
         this.downloadLoading = true;
         try {

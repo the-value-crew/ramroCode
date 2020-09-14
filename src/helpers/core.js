@@ -1,4 +1,4 @@
-import domtoimage from "dom-to-image-more";
+// import lzstring from "lz-string";
 
 export const fluctuateRgb = (color, n) => {
     let rgb = color.match(/\d+/g).map(Number);
@@ -20,45 +20,33 @@ export const downloadImage = (dataUrl, extension) => {
 
 export const copyBlobToClipboard = async (blob) => {
     try {
-        const { state } = await navigator.permissions.query({
-            name: "clipboard-write",
-        });
+        const { state } = await navigator.permissions.query({ name: "clipboard-write" });
         if (state === "granted") {
-            navigator.clipboard.write([
-                new window.ClipboardItem({ [blob.type]: blob }),
-            ]);
+            navigator.clipboard.write([new window.ClipboardItem({ [blob.type]: blob })]);
             alert("📋 Copied to clipboard");
         }
     } catch (error) {
         console.log(error);
-        alert(
-            "Sorry you browser doesn't support this feature. Downlaod the image instead 🙂"
-        );
+        let msg = "Sorry you browser doesn't support this feature. Downlaod the image instead 🙂";
+        alert(msg);
     }
-}
+};
 
-export const domToImage = async (type, node) => {
-    if (type == "Copy") {
-        domtoimage
-            .toBlob(node)
-            .then((blob) => {
-                copyBlobToClipboard(blob);
-            })
-            .catch((err) => {
-                console.log(err);
-                throw "Oops, something went wrong!";
-            });
-        return;
+export const copyConfigToClipboard = async (config) => {
+    let url = window.location.protocol + "//" + window.location.host + window.location.pathname + "#/";
+    url += "?data=" + encodeURIComponent(config);
+
+    console.log(url);
+
+    try {
+        const { state } = await navigator.permissions.query({ name: "clipboard-write" });
+        if (state === "granted") {
+            navigator.clipboard.writeText(url);
+            alert("📋 Config URL copied to clipboard.");
+        }
+    } catch (error) {
+        console.log(error);
+        let msg = "Sorry you browser doesn't support this feature.";
+        alert(msg);
     }
-
-    let option =
-        type === "Jpeg" ? { quality: this.downloadImageQuality } : null;
-    domtoimage["to" + type](node, option)
-        .then((dataUrl) => {
-            downloadImage(dataUrl, type.toLowerCase());
-        })
-        .catch((err) => {
-            console.log(err);
-            throw "Oops, something went wrong!";
-        });
 }

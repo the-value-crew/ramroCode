@@ -170,8 +170,13 @@
 
         <div class="actionBtn" @click="handleDownload('Copy')">
           <i class="fal fa-copy"></i>
-          <span>Copy to clipboard</span>
+          <span>Copy image</span>
         </div>
+
+        <!-- <div class="actionBtn" @click="handleDownload('Config')">
+          <i class="fal fa-copy"></i>
+          <span>Url</span>
+        </div> -->
       </div>
 
       <div class="bottomSection">
