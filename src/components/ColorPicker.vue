@@ -5,7 +5,7 @@
       :swatches="swatches"
       show-fallback
       fallback-input-type="color"
-      :swatch-size="30"
+      :swatch-size="20"
       shapes="circles"
       @input="handleInput"
     >
@@ -24,15 +24,13 @@ export default {
   props: ["value"],
   data() {
     return {
-      val: this.value,
+      val: this.value == "transparent" ? "" : this.value, //fix transparency issue
       swatches: [
-        '',
-        "white",
+        "",
         "#26A69A",
         "#66BB6A",
         "#9CCC65",
         "#D4E157",
-        "#FFEE58",
         "#FFCA28",
         "#FFA726",
         "#FF7043",
@@ -50,7 +48,7 @@ export default {
 
   methods: {
     handleInput() {
-      this.$emit("input", this.val);
+      this.$emit("input", this.val || "transparent");
     },
   },
 
@@ -81,8 +79,18 @@ export default {
 
 .vue-swatches {
   .vue-swatches__container {
-    top: 30px !important;
+    top: 40px !important;
     left: 0;
+    // z-index: 10000;
+  }
+
+  .vue-swatches__wrapper {
+    width: 200px !important; 
+  }
+
+  .vue-swatches__fallback__wrapper {
+    width: 100% !important;
+    margin-left: 0 !important;
   }
 
   .vue-swatches__fallback__button {

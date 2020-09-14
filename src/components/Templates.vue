@@ -4,7 +4,7 @@
       class="template"
       v-for="template in templates"
       :key="template.name"
-      @click="selectPreset(template)"
+      @click="selectTemplate(template.name)"
       :style="'background-image: url(/templates/' + template.name + '.png)'"
     >
       <i class="fal fa-badge-check check" v-if="template.name == val"></i>
@@ -32,9 +32,9 @@ export default {
   },
 
   methods: {
-    selectPreset(template) {
-      this.val = template.name;
-      this.$emit("input", template);
+    selectTemplate(templateName) {
+      this.val = templateName;
+      this.$emit("input", templateName);
     },
   },
 

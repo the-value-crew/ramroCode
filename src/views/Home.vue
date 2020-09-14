@@ -31,14 +31,14 @@
         class-name-handle="resizeHandle"
       >
         <div id="screenshot" :style="screenshotInlineCss">
-          <pre id="code" :style="codeInlineCss"><div class="stack --first" :class="'--' + config.selectedStackTheme" ref="stackOne"></div><div
+          <pre id="code" :style="codeInlineCss"><div class="stack --first" :class="'--' + selectedStackTheme" ref="stackOne"></div><div
   class="stack --second"
-  :class="'--' + config.selectedStackTheme"
+  :class="'--' + selectedStackTheme"
   ref="stackTwo"
 ></div><div
   id="border"
   class="hljs"
-  :class="'--' + config.selectedBorderTheme"
+  :class="'--' + selectedBorderTheme"
   :style="borderInlineCss"
 ><div class="dots">
           <div class="dot dot-1"></div>
@@ -46,11 +46,11 @@
           <div class="dot dot-3"></div>
 </div>
           <div
-  v-if="config.showLanguageName"
+  v-if="showLanguageName"
   class="languageName"
   contenteditable
   spellcheck="false"
->{{config.selectedLanguage | humanize}}</div>
+>{{selectedLanguage | humanize}}</div>
         </div><div
   ref="codeEditor"
   id="codeEditor"
@@ -68,25 +68,21 @@
 
     <ConfigPanel
       ref="configPanel"
-      v-model="config"
-      :value="config"
       @download="handleDownload"
-      @languageChange="handleLanguageChange"
-      @templateChange="handleTemplateChange"
-      @editorThemeChange="handleEditorThemeChange"
-      @stackThemeChange="handleStackThemeChange"
+      @languageChange="reHighlight"
+      @templateChange="reHighlight"
+      @editorThemeChange="reHighlight"
     />
   </perfect-scrollbar>
 </template>
 
 <script>
-import Vue from "vue";
-import hljs from "highlight.js";
-// import { saveAs } from "file-saver";
 import ConfigPanel from "@/components/ConfigPanel";
+import { fluctuateRgb } from "@/helpers/core";
+import { domToImage } from "@/helpers/dom-to-image";
 import { templates } from "@/data";
-import { fluctuateRgb, downloadImage } from "@/helper";
-import domtoimage from "dom-to-image-more";
+import { mapFields } from "vuex-map-fields";
+import { highlight } from "@/workers/hljs.worker";
 
 export default {
   name: "Home",
@@ -96,132 +92,74 @@ export default {
       codeText: null,
       codeHighlighted: null,
       stackBaseColor: null,
-
-      config: {
-        visible: true,
-        selectedEditorTheme: "dracula",
-        selectedBorderTheme: "theme-1",
-        selectedStackTheme: "none",
-        selectedLanguage: "javascript",
-        fontSize: 16,
-        fontFamily: '"Fira Code", monospace',
-        paddingX: 50,
-        paddingY: 50,
-        borderRadius: 5,
-        backgroundColor: "#2980b9",
-        selectedTemplate: "temp-default",
-        zoom: 1,
-        shadow: false,
-        showLanguageName: false,
-        transform3d: {
-          x: 0,
-          y: 0,
-          z: 0,
-        },
-        downloadLoading: false,
-        downloadImageQuality: 0.9,
-      },
     };
   },
 
+  created() {},
+
   mounted() {
-    this.init();
+    this.codeText =
+      "// RamroCode(1.1.0) - Make your code look beautiful \n\n" +
+      "var step1 = 'Copy and paste your code here'; \n\n" +
+      "var step2 = 'Choose a template or customize it yourself'; \n\n" +
+      "var step3 = 'Download/Copy image and use it on your blogs, videos, notes'; \n\n" +
+      "var step4 = 'Tell your friends about this awesome tool 😃' \n\n" +
+      "//Thank You";
+    this.reHighlight();
   },
 
   methods: {
-    handleDownload(type) {
-      if (!this.config.downloadLoading) {
-        this.config.downloadLoading = true;
-        let node = document.querySelector("#screenshot");
-
-        if (type == "Copy") {
-          domtoimage
-            .toBlob(node)
-            .then(async (blob) => {
-              try {
-                const { state } = await navigator.permissions.query({
-                  name: "clipboard-write",
-                });
-                if (state === "granted") {
-                  navigator.clipboard.write([
-                    new window.ClipboardItem({ [blob.type]: blob }),
-                  ]);
-                  alert("📋 Copied to clipboard");
-                }
-              } catch (error) {
-                console.log(error);
-                alert(
-                  "Sorry you browser doesn't support this feature. Downlaod the image instead 🙂"
-                );
-              }
-
-              this.config.downloadLoading = false;
-            })
-            .catch(() => {
-              alert("Oops, something went wrong!");
-              this.config.downloadLoading = false;
-            });
-          return;
+    async handleDownload(type) {
+      if (!this.downloadLoading) {
+        this.downloadLoading = true;
+        try {
+          await domToImage(type, document.querySelector("#screenshot"));
+        } catch (error) {
+          alert(error);
         }
-
-        domtoimage["to" + type](
-          node,
-          type === "Jpeg" ? { quality: this.config.downloadImageQuality } : null
-        )
-          .then((dataUrl) => {
-            downloadImage(dataUrl, type.toLowerCase());
-            this.config.downloadLoading = false;
-          })
-          .catch(() => {
-            alert("Oops, something went wrong!");
-            this.config.downloadLoading = false;
-          });
+        this.downloadLoading = false;
       }
     },
 
-    init() {
-      this.$refs.configPanel.changeEditorTheme(this.config.selectedEditorTheme);
-      this.codeText =
-        "// RamroCode(1.1.0) - Make your code look beautiful \n\n" +
-        "var step1 = 'Copy and paste your code here'; \n\n" +
-        "var step2 = 'Choose a template or customize it yourself'; \n\n" +
-        "var step3 = 'Download/Copy image and use it on your blogs, videos, notes'; \n\n" +
-        "var step4 = 'Tell your friends about this awesome tool 😃' \n\n" +
-        "//Thank You";
-      this.codeHighlighted = hljs.highlight(
-        this.config.selectedLanguage,
-        this.codeText
-      ).value;
-      this.handleTemplateChange(this.config.selectedTemplate);
-    },
+    // handleDownload(type) {
+    //   if (!this.downloadLoading) {
+    //     this.downloadLoading = true;
+    //     let node = document.querySelector("#screenshot");
 
-    handleEditorThemeChange() {
-      setTimeout(() => {
-        this.stackBaseColor = window
-          .getComputedStyle(document.querySelector(".hljs"))
-          .getPropertyValue("background-color");
+    //     if (type == "Copy") {
+    //       domtoimage
+    //         .toBlob(node)
+    //         .then((blob) => {
+    //           copyBlobToClipboard(blob);
+    //           this.downloadLoading = false;
+    //         })
+    //         .catch(() => {
+    //           alert("Oops, something went wrong!");
+    //           this.downloadLoading = false;
+    //         });
+    //       return;
+    //     }
 
-        this.$refs.stackOne.style.backgroundColor = fluctuateRgb(
-          this.stackBaseColor,
-          20
-        );
-        this.$refs.stackTwo.style.backgroundColor = fluctuateRgb(
-          this.stackBaseColor,
-          10
-        );
-      }, 1000);
-    },
+    //     let option =
+    //       type === "Jpeg" ? { quality: this.downloadImageQuality } : null;
+    //     domtoimage["to" + type](node, option)
+    //       .then((dataUrl) => {
+    //         downloadImage(dataUrl, type.toLowerCase());
+    //         this.downloadLoading = false;
+    //       })
+    //       .catch(() => {
+    //         alert("Oops, something went wrong!");
+    //         this.downloadLoading = false;
+    //       });
+    //   }
+    // },
 
-    handleStackThemeChange(stackThemeName) {
-      this.config.selectedStackTheme = stackThemeName;
-    },
-
-    handleCodeEditorPaste(e) {
+    async handleCodeEditorPaste(e) {
       e.preventDefault();
       this.codeText = e.clipboardData.getData("text");
       document.execCommand("inserttext", false, this.codeText);
-      let hlData = hljs.highlightAuto(this.codeText);
-      this.config.selectedLanguage = hlData.language;
+      let hlData = await highlight(this.codeText);
+      this.selectedLanguage = hlData.language;
       this.codeHighlighted = hlData.value;
     },
 
@@ -229,26 +167,36 @@ export default {
       this.codeText = e.target.innerText;
     },
 
-    handleLanguageChange(languageName) {
-      this.config.selectedLanguage = languageName;
-      this.codeHighlighted = hljs.highlight(languageName, this.codeText).value;
-    },
-
-    handleTemplateChange(templateName) {
-      let template = templates.find((t) => t.name == templateName);
-      if (template) {
-        Object.keys(template).forEach((key) => {
-          // this.config[key] = template[key];
-          Vue.set(this.config, key, template[key]);
-        });
-        this.$refs.configPanel.changeEditorTheme(
-          this.config.selectedEditorTheme
-        );
-      }
+    async reHighlight() {
+      let highlightData = await highlight(this.codeText, this.selectedLanguage);
+      if (highlightData) this.codeHighlighted = highlightData.value;
     },
   },
 
   computed: {
+    ...mapFields([
+      "config.visible",
+      "config.selectedTemplate",
+      "config.selectedEditorTheme",
+      "config.selectedBorderTheme",
+      "config.selectedStackTheme",
+      "config.selectedLanguage",
+      "config.fontSize",
+      "config.fontFamily",
+      "config.paddingX",
+      "config.paddingY",
+      "config.borderRadius",
+      "config.backgroundColor",
+      "config.zoom",
+      "config.shadow",
+      "config.showLanguageName",
+      "config.transform3d.x",
+      "config.transform3d.y",
+      "config.transform3d.z",
+      "config.downloadLoading",
+      "config.downloadImageQuality",
+    ]),
+
     codePanelPos() {
       let pos = {
         x: window.innerWidth / 2 - 400 - 250 / 2,
@@ -259,46 +207,92 @@ export default {
     },
 
     codePanelCss() {
-      this.config.transform3d;
-      return `transform: scale(${this.config.zoom})`;
+      return `transform: scale(${this.zoom})`;
     },
 
     codeInlineCss() {
-      return `transform: rotateX(${this.config.transform3d.x}deg) rotateY(${this.config.transform3d.y}deg) rotateZ(${this.config.transform3d.z}deg);
-    `;
+      return `transform: rotateX(${this.x}deg) rotateY(${this.y}deg) rotateZ(${this.z}deg);`;
     },
 
     codeEditorInlineCss() {
       let extraCss = "";
-      if (this.config.selectedBorderTheme === "none")
+      if (this.selectedBorderTheme === "none")
         extraCss = `
-        border-top-left-radius: ${this.config.borderRadius}px;
-        border-top-right-radius: ${this.config.borderRadius}px;
+        border-top-left-radius: ${this.borderRadius}px;
+        border-top-right-radius: ${this.borderRadius}px;
       `;
-      if (this.config.shadow)
+      if (this.shadow)
         extraCss += `box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3),0 15px 12px rgba(0, 0, 0, 0.22);`;
       return `
-        font-size: ${this.config.fontSize}px;
-        font-family: ${this.config.fontFamily} !important;
-        border-bottom-left-radius: ${this.config.borderRadius}px;
-        border-bottom-right-radius: ${this.config.borderRadius}px;
+        font-size: ${this.fontSize}px;
+        font-family: ${this.fontFamily} !important;
+        border-bottom-left-radius: ${this.borderRadius}px;
+        border-bottom-right-radius: ${this.borderRadius}px;
         ${extraCss}
       `;
     },
 
     borderInlineCss() {
       return `
-        border-top-left-radius: ${this.config.borderRadius}px; 
-        border-top-right-radius: ${this.config.borderRadius}px;
+        border-top-left-radius: ${this.borderRadius}px; 
+        border-top-right-radius: ${this.borderRadius}px;
       `;
     },
 
     screenshotInlineCss() {
       return `
-        border-radius: ${this.config.borderRadius}px;
-        background-color: ${this.config.backgroundColor};
-        padding: ${this.config.paddingY || 0}px ${this.config.paddingX || 0}px;
+        border-radius: ${this.borderRadius}px;
+        background-color: ${this.backgroundColor};
+        padding: ${this.paddingY || 0}px ${this.paddingX || 0}px;
       `;
+    },
+  },
+
+  watch: {
+    selectedEditorTheme: {
+      immediate: true,
+      handler: function (newThemeName) {
+        var head = document.getElementsByTagName("head")[0];
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = "/hljs-themes/" + newThemeName + ".css";
+        head.appendChild(link);
+
+        setTimeout(() => {
+          let themeColor = window
+            .getComputedStyle(document.querySelector(".hljs"))
+            .getPropertyValue("background-color");
+
+          this.$refs.stackOne.style.backgroundColor = fluctuateRgb(
+            themeColor,
+            20
+          );
+          this.$refs.stackTwo.style.backgroundColor = fluctuateRgb(
+            themeColor,
+            10
+          );
+        }, 1000);
+      },
+    },
+    selectedLanguage: {
+      immediate: true,
+      handler() {
+        this.reHighlight();
+      },
+    },
+
+    selectedTemplate: {
+      immediate: true,
+      handler: function (newVal) {
+        let template = templates.find((t) => t.name === newVal);
+
+        // flatten template data
+        template.x = template.transform3d.x;
+        template.y = template.transform3d.y;
+        template.z = template.transform3d.z;
+        Object.keys(template).forEach((key) => (this[key] = template[key]));
+      },
     },
   },
 };

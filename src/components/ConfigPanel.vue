@@ -1,28 +1,25 @@
 <template>
-  <div class="cpanel" :class="{'--hidden': !config.visible}">
+  <div class="cpanel" :class="{'--hidden': !visible}">
     <div class="shortcut">
       <div class="shortcutBtn --handle" @click="toggleConfig()">
-        <i
-          class="fal"
-          :class="{'fa-angle-right': config.visible, 'fa-angle-left': !config.visible}"
-        ></i>
+        <i class="fal" :class="{'fa-angle-right': visible, 'fa-angle-left': !visible}"></i>
       </div>
 
       <div class="topSection">
-        <div class="shortcutBtn" @click="zoom(-1)">
+        <div class="shortcutBtn" @click="zoomEditor(-1)">
           <i class="fal fa-search-minus"></i>
         </div>
 
         <div class="shortcutBtn">
-          <span class="btnText">{{Math.floor(config.zoom * 100)}}%</span>
+          <span class="btnText">{{Math.floor(zoom * 100)}}%</span>
         </div>
 
-        <div class="shortcutBtn" @click="zoom(1)">
+        <div class="shortcutBtn" @click="zoomEditor(1)">
           <i class="fal fa-search-plus"></i>
         </div>
       </div>
 
-      <div class="bottomSection" v-if="!config.visible">
+      <div class="bottomSection" v-if="!visible">
         <div class="shortcutBtn" @click="handleDownload('Copy')" title="Copy to clipboard">
           <i class="fal fa-copy"></i>
         </div>
@@ -37,17 +34,17 @@
       <h1 class="title">Edit Panel</h1>
 
       <label>Language</label>
-      <select class="form-control" @input="(e) => changeLanguage(e.target.value)">
+      <select class="form-control" v-model="selectedLanguage">
         <option
           v-for="language in hljsLanguages"
           :key="language.value"
           :value="language.value"
-          :selected="language.value == config.selectedLanguage"
+          :selected="language.value == selectedLanguage"
         >{{language.label}}</option>
       </select>
 
       <label>Choose a template</label>
-      <Templates :value="config.selectedTemplate" @input="handleTemplateChange" />
+      <Templates :value="selectedTemplate" @input="(tempName) => selectedTemplate = tempName" />
     </div>
 
     <div class="header">Additional settings</div>
@@ -55,11 +52,11 @@
       <div class="content">
         <div style="display: flex; flex-direction: column">
           <label>Editor Theme</label>
-          <select class="form-control" @input="(e) => changeEditorTheme(e.target.value)">
+          <select class="form-control" v-model="selectedEditorTheme">
             <option
               v-for="theme in hljsThemes"
               :value="theme.value"
-              :selected="theme.value == config.selectedEditorTheme"
+              :selected="theme.value == selectedEditorTheme"
               :key="theme.value"
             >{{theme.label}}</option>
           </select>
@@ -68,26 +65,22 @@
         <div class="row">
           <div class="col">
             <label>Border Theme</label>
-            <select class="form-control" @input="(e) => changeBorderTheme(e.target.value)">
+            <select class="form-control" v-model="selectedBorderTheme">
               <option
                 v-for="borderTheme in borderThemes"
                 :key="borderTheme.value"
                 :value="borderTheme.value"
-                :selected="borderTheme.value == config.selectedBorderTheme"
+                :selected="borderTheme.value == selectedBorderTheme"
               >{{borderTheme.label}}</option>
             </select>
           </div>
           <div class="col">
             <label>Stack Theme</label>
-            <select
-              class="form-control"
-              @input="(e) => changeStackTheme(e.target.value)"
-              style="max-width: 120px"
-            >
+            <select class="form-control" v-model="selectedStackTheme" style="max-width: 120px">
               <option
                 v-for="theme in stackThemes"
                 :value="theme.value"
-                :selected="theme.value == config.selectedStackTheme"
+                :selected="theme.value == selectedStackTheme"
                 :key="theme.value"
               >{{theme.label}}</option>
             </select>
@@ -97,26 +90,15 @@
         <div class="row">
           <div class="col">
             <label>Font Size</label>
-            <RangeInput
-              v-model="config.fontSize"
-              :min="10"
-              :max="40"
-              :value="config.fontSize"
-              @input="propagateChange"
-            />
+            <RangeInput v-model="fontSize" :min="10" :max="40" :value="fontSize" />
           </div>
           <div class="col">
             <label>Font family</label>
-            <select
-              class="form-control"
-              v-model="config.fontFamily"
-              @input="propagateChange"
-              style="max-width: 120px"
-            >
+            <select class="form-control" v-model="fontFamily" style="max-width: 120px">
               <option
                 v-for="font in fontFamilies"
                 :value="font.value"
-                :selected="font.value == config.fontFamily"
+                :selected="font.value == fontFamily"
                 :key="font.value"
               >{{font.label}}</option>
             </select>
@@ -125,59 +107,37 @@
 
         <div class="row">
           <div class="col">
-            <ColorPicker
-              v-model="config.backgroundColor"
-              @input="propagateChange"
-              :value="config.backgroundColor"
-            />
+            <ColorPicker v-model="backgroundColor" :value="backgroundColor" />
           </div>
 
           <div class="col">
             <label>Rounded Corners</label>
-            <RangeInput
-              v-model="config.borderRadius"
-              :min="0"
-              :max="30"
-              :value="config.borderRadius"
-              @input="propagateChange"
-            />
+            <RangeInput v-model="borderRadius" :min="0" :max="30" :value="borderRadius" />
           </div>
         </div>
 
         <div class="row">
           <div class="col">
             <label>Horizontal gap</label>
-            <RangeInput
-              v-model="config.paddingX"
-              :min="0"
-              :max="200"
-              :value="config.paddingX"
-              @input="propagateChange"
-            />
+            <RangeInput v-model="paddingX" :min="0" :max="200" :value="paddingX" />
           </div>
 
           <div class="col">
             <label>Vertical gap</label>
-            <RangeInput
-              v-model="config.paddingY"
-              :min="0"
-              :max="200"
-              :value="config.paddingY"
-              @input="propagateChange"
-            />
+            <RangeInput v-model="paddingY" :min="0" :max="200" :value="paddingY" />
           </div>
         </div>
 
         <div class="row">
           <div class="col">
             <div class="checkboxWrapper">
-              <input type="checkbox" id="showLanguageName" v-model="config.showLanguageName" />
+              <input type="checkbox" id="showLanguageName" v-model="showLanguageName" />
               <label for="showLanguageName">Show Language</label>
             </div>
           </div>
           <div class="col">
             <div class="checkboxWrapper">
-              <input type="checkbox" id="shadow" v-model="config.shadow" />
+              <input type="checkbox" id="shadow" v-model="shadow" />
               <label for="shadow">Enable Shadow</label>
             </div>
           </div>
@@ -185,39 +145,15 @@
 
         <div>
           <label>3D Transformation</label>
-          <RangeInput
-            v-model="config.transform3d.x"
-            :value="config.transform3d"
-            :min="-360"
-            :max="360"
-            dotLabel="X: "
-            dotWidth="26"
-            @input="propagateChange"
-          />
-          <RangeInput
-            v-model="config.transform3d.y"
-            :value="config.transform3d"
-            :min="-360"
-            :max="360"
-            dotLabel="Y: "
-            dotWidth="26"
-            @input="propagateChange"
-          />
-          <RangeInput
-            v-model="config.transform3d.z"
-            :value="config.transform3d"
-            :min="-360"
-            :max="360"
-            dotLabel="Z: "
-            dotWidth="26"
-            @input="propagateChange"
-          />
+          <RangeInput v-model="x" :value="x" :min="-360" :max="360" dotLabel="X: " dotWidth="26" />
+          <RangeInput v-model="y" :value="y" :min="-360" :max="360" dotLabel="Y: " dotWidth="26" />
+          <RangeInput v-model="z" :value="z" :min="-360" :max="360" dotLabel="Z: " dotWidth="26" />
         </div>
       </div>
     </perfect-scrollbar>
 
     <div class="actionBtnContainer">
-      <div class="loading" v-if="config.downloadLoading">
+      <div class="loading" v-if="downloadLoading">
         <i class="fal fa-spinner fa-spin"></i>
       </div>
 
@@ -245,12 +181,12 @@
         </div>
         <div class="imageQuality">
           with
-          <select v-model="config.downloadImageQuality">
+          <select v-model="downloadImageQuality">
             <option
               v-for="i in 10"
               :key="i"
               :value="i/10"
-              :selected="config.downloadImageQuality === i/10"
+              :selected="downloadImageQuality === i/10"
             >{{i * 10}}%</option>
           </select>
           Quality
@@ -267,15 +203,13 @@ import RangeInput from "@/components/RangeInput";
 import ColorPicker from "@/components/ColorPicker";
 import Templates from "@/components/Templates";
 import hljs from "highlight.js";
+import { mapFields } from "vuex-map-fields";
 
 export default {
   name: "ConfigPanel",
   components: { ColorPicker, RangeInput, Templates },
-  props: ["value"],
   data() {
     return {
-      config: null,
-
       borderThemes: [
         { label: "None", value: "none" },
         { label: "Theme 1", value: "theme-1" },
@@ -299,66 +233,45 @@ export default {
     };
   },
 
-  created() {
-    this.config = this.value;
-    this.propagateChange();
-  },
-
   methods: {
-    zoom(type) {
-      if (type === 1) this.config.zoom += 0.05;
-      else this.config.zoom -= 0.05;
-      this.propagateChange();
-    },
-
-    propagateChange() {
-      this.$emit("input", this.config);
+    zoomEditor(type) {
+      if (type === 1) this.zoom += 0.05;
+      else this.zoom -= 0.05;
     },
 
     handleDownload(type) {
       this.$emit("download", type);
-      // console.log(type);
-    },
-
-    changeEditorTheme(themeFileName) {
-      var head = document.getElementsByTagName("head")[0];
-      var link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.type = "text/css";
-      link.href = "/hljs-themes/" + themeFileName + ".css";
-      head.appendChild(link);
-      this.$emit("editorThemeChange", themeFileName);
-    },
-
-    changeBorderTheme(themeName) {
-      this.config.selectedBorderTheme = themeName;
-      this.propagateChange();
-    },
-
-    changeStackTheme(themeName) {
-      this.config.selectedStackTheme = themeName;
-      this.$emit("stackThemeChange", themeName);
-    },
-
-    changeLanguage(languageName) {
-      this.config.selectedLanguage = languageName;
-      this.$emit("languageChange", languageName);
-    },
-
-    handleTemplateChange(template) {
-      this.$emit("templateChange", template.name);
-      Object.keys(template).forEach((key) => {
-        this.config[key] = template[key];
-      });
     },
 
     toggleConfig() {
-      this.config.visible = !this.config.visible;
-      this.propagateChange();
+      this.visible = !this.visible;
     },
   },
 
   computed: {
+    ...mapFields([
+      "config.visible",
+      "config.selectedTemplate",
+      "config.selectedEditorTheme",
+      "config.selectedBorderTheme",
+      "config.selectedStackTheme",
+      "config.selectedLanguage",
+      "config.fontSize",
+      "config.fontFamily",
+      "config.paddingX",
+      "config.paddingY",
+      "config.borderRadius",
+      "config.backgroundColor",
+      "config.zoom",
+      "config.shadow",
+      "config.showLanguageName",
+      "config.transform3d.x",
+      "config.transform3d.y",
+      "config.transform3d.z",
+      "config.downloadLoading",
+      "config.downloadImageQuality",
+    ]),
+
     hljsThemes() {
       return hljsThemes.map((filename) => {
         return {
