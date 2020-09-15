@@ -51,7 +51,7 @@
   contenteditable
   spellcheck="false"
 >{{selectedLanguage | humanize}}</div>
-        </div><div
+        </div><perfect-scrollbar
   ref="codeEditor"
   id="codeEditor"
   class="hljs code"
@@ -61,7 +61,7 @@
   @paste="(e) => handleCodeEditorPaste(e)"
   @input="handleCodeEditorChange"
   :style="codeEditorInlineCss"
-></div></pre>
+></perfect-scrollbar></pre>
         </div>
       </vue-draggable-resizable>
     </div>
@@ -329,7 +329,9 @@ export default {
 
 .resizeRect {
   border: 3px dashed #3f3b41;
+  height: auto;
   z-index: 1000;
+  height: auto;
 }
 
 .home {
@@ -391,6 +393,7 @@ export default {
       transition: background-color 0.2s ease;
       #code {
         $borderHeight: 40px;
+        $min-width: 100px;
 
         width: 100%;
         height: 100%;
@@ -459,9 +462,10 @@ export default {
 
         #border {
           height: $borderHeight;
+          min-width: $min-width;
           margin: 0;
           padding: 0;
-          padding-left: 0.5rem;
+          overflow: hidden;
           display: flex;
           justify-content: space-between;
           transition: all 0.2s ease;
@@ -470,6 +474,7 @@ export default {
           .dots {
             display: flex;
             align-self: center;
+            margin-left: 0.5rem;
             .dot {
               height: $dotSize;
               width: $dotSize;
@@ -532,6 +537,8 @@ export default {
 
         #codeEditor {
           height: calc(100% - #{$borderHeight});
+          // height: 100%;
+          min-width: $min-width;
           box-sizing: border-box;
           padding: 1.5rem 1rem;
           outline: none;
