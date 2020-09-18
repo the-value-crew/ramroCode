@@ -44,6 +44,7 @@ let firstTimeConfig = {
   downloadLoading: false,
   downloadImageQuality: 0.9,
   downloadImageScaling: 1,
+  lockDrag: false
 }
 
 export default new Vuex.Store({

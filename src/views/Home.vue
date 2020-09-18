@@ -19,9 +19,11 @@
       >TVC-labs</a>
     </div>
 
-    <div class="codePanel" :style="codePanelCss">
+    <div class="codePanel">
       <vue-draggable-resizable
         :w="500"
+        :min-width="200"
+        :min-height="200"
         :h="screenshotHeight"
         :x="codePanelPos.x"
         :y="codePanelPos.y"
@@ -29,14 +31,16 @@
         :prevent-deactivation="true"
         class-name="resizeRect"
         class-name-handle="resizeHandle"
-        :drag-handle="'.drag-handle'"
         @resizing="handleResize"
         :active="true"
-        :parent="true"
+        :draggable="!lockDrag"
       >
-        <div class="drag-handle">
-          <i class="fal fa-grip-vertical"></i>
+        <div class="lock-handle" @click="toggleLock()">
+          <i class="fal fa-lock-alt" v-if="lockDrag"></i>
+          <i class="fal fa-lock-open-alt" v-else></i>
         </div>
+
+        <!-- <div class="warning">{{warning}}</div> -->
         <div id="screenshot" :style="screenshotInlineCss">
           <CodeEditor ref="ce" />
         </div>
@@ -57,7 +61,7 @@ export default {
   components: { ConfigPanel, CodeEditor },
   data() {
     return {
-      height: null,
+      warning: null,
     };
   },
 
@@ -65,7 +69,17 @@ export default {
 
   methods: {
     handleResize() {
-      this.$refs.ce.handleViewPortChange();
+      // this.$refs.ce.handleViewPortChange();
+      // this.$refs.ce.fireEvent();
+
+      let cm = document.querySelector(".CodeMirror");
+      var hs = cm.scrollWidth > cm.clientWidth;
+      console.log("----", cm.scrollWidth, cm.clientWidth);
+      this.warning = hs ? "Scrollbar will be visible on screenshot" : "";
+    },
+
+    toggleLock() {
+      this.lockDrag = !this.lockDrag;
     },
   },
 
@@ -95,6 +109,7 @@ export default {
       "config.downloadImageScaling",
       "config.screenshotWidth",
       "config.screenshotHeight",
+      "config.lockDrag",
     ]),
 
     codePanelPos() {
@@ -104,11 +119,6 @@ export default {
       };
       if (pos.x <= 0) pos.x = 100;
       return pos;
-    },
-
-    codePanelCss() {
-      // return `transform: scale(${this.zoom})`;
-      return "";
     },
 
     codeInlineCss() {
@@ -182,15 +192,13 @@ export default {
   // overflow: auto;
 }
 
-.drag-handle {
+.lock-handle {
   position: absolute;
-  background-color: whitesmoke;
-  border: 3px dashed #3f3b41;
   padding: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1rem;
   border-radius: 5px;
-  cursor: move;
   transform: translateX(-100%);
+  cursor: pointer;
 }
 
 .home {

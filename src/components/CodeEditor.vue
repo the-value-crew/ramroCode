@@ -28,16 +28,11 @@ export default {
       themeBackgroundColor: null,
       themeTextColor: null,
       cmOption: {
-        value: this.codeText,
         tabSize: 4,
-        // lineNumbers: true,
         keyMap: "sublime",
-        mode: this.selectedLanguage,
-        theme: "base16-dark",
         viewportMargin: Infinity,
-        lineWrapping: true,
-        lint: false,
-        spellcheck: false,
+        scrollbarStyle: null
+        // lineWrapping: true,
       },
     };
   },
@@ -57,17 +52,20 @@ export default {
 
     // set value at last so that it triggers above events
     this.codemirror.setValue(this.codeText);
-
-    setInterval(() => {
-      console.log(this.z);
-    }, 1000);
   },
 
   methods: {
+    fireEvent() {
+      // CodeMirror.signal(this.$refs.codemirror, "viewportChange");
+      this.codemirror.setValue(this.codeText);
+    },
+
     handleViewPortChange() {
       let wrapperElem = this.$refs.codeMirrorWrapper;
       if (wrapperElem) {
-        this.screenshotHeight = wrapperElem.offsetHeight + 2 * this.paddingY;
+        // this.screenshotHeight = wrapperElem.offsetHeight + 2 * this.paddingY;
+        this.screenshotHeight =
+          wrapperElem.getBoundingClientRect().height + 2 * this.paddingY;
         this.refresh();
       }
     },
@@ -114,7 +112,7 @@ export default {
         font-size: ${this.fontSize}px;
         font-family: ${this.fontFamily} !important;
         border-radius: ${this.borderRadiusInner}px;
-        transform: scale(${this.zoom}) rotateX(${this.x}deg) rotateY(${this.y}deg) rotateZ(${this.z}deg);
+        transform: rotateX(${this.x}deg) rotateY(${this.y}deg) rotateZ(${this.z}deg);
         ${extraCss}
       `;
     },
@@ -167,12 +165,6 @@ export default {
             .getComputedStyle(document.querySelector(".CodeMirror"))
             .getPropertyValue("color");
         }
-
-        // setTimeout(() => {
-        //   let themeColor = window
-        //     .getComputedStyle(document.querySelector(".hljs"))
-        //     .getPropertyValue("background-color");
-
         //   this.$refs.stackOne.style.backgroundColor = fluctuateRgb(
         //     themeColor,
         //     20
@@ -181,7 +173,6 @@ export default {
         //     themeColor,
         //     10
         //   );
-        // }, 1000);
       },
     },
 
@@ -213,10 +204,11 @@ export default {
 .CodeMirrorWrapper {
   border-radius: 5px;
   padding: 0.5rem;
-  // height: calc(100% - 20px); //20x is border height
+  // overflow: hidden;
   .CodeMirror {
     height: auto; // grow height according to content
     font-family: inherit;
+    overflow: hidden !important;
   }
 
   #border {
