@@ -9,6 +9,7 @@
     "e2e": "cypress open"
   },
   "dependencies": {
+    "codemirror": "^5.57.0",
     "comlink": "^4.3.0",
     "core-js": "^3.6.5",
     "dom-to-image-more": "^2.8.0",
@@ -16,7 +17,9 @@
     "highlightjs-line-numbers.js": "^2.8.0",
     "humanize-string": "^2.1.0",
     "lz-string": "^1.4.4",
+    "monaco-editor-vue": "^1.0.10",
     "vue": "^2.6.11",
+    "vue-codemirror": "^4.0.6",
     "vue-draggable-resizable": "^2.2.0",
     "vue-router": "^3.2.0",
     "vue-slider-component": "^3.2.5",

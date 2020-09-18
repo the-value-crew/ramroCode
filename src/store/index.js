@@ -1,14 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { getField, updateField } from 'vuex-map-fields';
-import VuexPersistence from 'vuex-persist'
-// import lzstring from "lz-string";
+// import VuexPersistence from 'vuex-persist'
 
 Vue.use(Vuex);
-const vuexLocal = new VuexPersistence({
-  key: 'ramroCode-Config',
-  storage: window.localStorage
-});
+// const vuexLocal = new VuexPersistence({
+//   key: 'ramroCode-Config',
+//   storage: window.localStorage
+// });
 
 let firstTimeConfig = {
   codeText: "// RamroCode(1.1.0) - Make your code look beautiful \n\n" +
@@ -26,12 +25,17 @@ let firstTimeConfig = {
   fontFamily: '"Fira Code", monospace',
   paddingX: 50,
   paddingY: 50,
-  borderRadius: 5,
+  borderRadiusInner: 5,
+  borderRadiusOuter: 5,
   backgroundColor: "#2980b9",
   selectedTemplate: "temp-default",
   zoom: 1,
+  screenshotWidth: null,
+  screenshotHeight: null,
   shadow: false,
+  lineNumbers: false,
   showLanguageName: false,
+  showLineNumbers: false,
   transform3d: {
     x: 0,
     y: 0,
@@ -39,18 +43,8 @@ let firstTimeConfig = {
   },
   downloadLoading: false,
   downloadImageQuality: 0.9,
+  downloadImageScaling: 1,
 }
-// check if url contains config
-// if (window.location.hash.includes('?data=')) {
-//   try {
-//     let hashData = JSON.parse(decodeURIComponent(window.location.hash.slice(8)));
-//     localStorage.removeItem('ramroCode-Config');
-//     firstTimeConfig = hashData;
-//     alert('success');
-//   } catch (e) {
-//     console.log(e);
-//   }
-// }
 
 export default new Vuex.Store({
   state: {
@@ -63,7 +57,7 @@ export default new Vuex.Store({
   mutations: {
     updateField,
   },
-  plugins: [vuexLocal.plugin]
+  // plugins: [vuexLocal.plugin]
 })
 
 

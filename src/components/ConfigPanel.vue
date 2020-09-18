@@ -36,8 +36,8 @@
       <label>Language</label>
       <select class="form-control" v-model="selectedLanguage">
         <option
-          v-for="language in hljsLanguages"
-          :key="language.value"
+          v-for="(language, i) in codemirrorLanguages"
+          :key="i"
           :value="language.value"
           :selected="language.value == selectedLanguage"
         >{{language.label}}</option>
@@ -54,7 +54,7 @@
           <label>Editor Theme</label>
           <select class="form-control" v-model="selectedEditorTheme">
             <option
-              v-for="theme in hljsThemes"
+              v-for="theme in codeMirrorThemes"
               :value="theme.value"
               :selected="theme.value == selectedEditorTheme"
               :key="theme.value"
@@ -112,7 +112,20 @@
 
           <div class="col">
             <label>Rounded Corners</label>
-            <RangeInput v-model="borderRadius" :min="0" :max="30" :value="borderRadius" />
+            <RangeInput
+              v-model="borderRadiusInner"
+              :min="0"
+              :max="30"
+              :value="borderRadiusInner"
+              dotLabel="In: "
+            />
+            <RangeInput
+              v-model="borderRadiusOuter"
+              :min="0"
+              :max="30"
+              :value="borderRadiusOuter"
+              dotLabel="Out: "
+            />
           </div>
         </div>
 
@@ -132,7 +145,11 @@
           <div class="col">
             <div class="checkboxWrapper">
               <input type="checkbox" id="showLanguageName" v-model="showLanguageName" />
-              <label for="showLanguageName">Show Language</label>
+              <label for="showLanguageName">Language</label>
+            </div>
+            <div class="checkboxWrapper">
+              <input type="checkbox" id="lineNumbers" v-model="lineNumbers" />
+              <label for="lineNumbers">Line Numbers</label>
             </div>
           </div>
           <div class="col">
@@ -145,6 +162,7 @@
 
         <div>
           <label>3D Transformation</label>
+          <button class="btnConfig" @click="reset3dTransform()">Reset</button>
           <RangeInput v-model="x" :value="x" :min="-360" :max="360" dotLabel="X: " dotWidth="26" />
           <RangeInput v-model="y" :value="y" :min="-360" :max="360" dotLabel="Y: " dotWidth="26" />
           <RangeInput v-model="z" :value="z" :min="-360" :max="360" dotLabel="Z: " dotWidth="26" />
@@ -158,6 +176,18 @@
       </div>
 
       <div class="topSection">
+        <div class="imageScaling">
+          Scale
+          <select v-model="downloadImageScaling">
+            <option
+              v-for="i in 5"
+              :key="i"
+              :value="i"
+              :selected="downloadImageScaling === i"
+            >{{i}}x</option>
+          </select>
+        </div>
+
         <div class="actionBtn" @click="handleDownload('Png')">
           <i class="fal fa-download"></i>
           <span>PNG</span>
@@ -170,13 +200,13 @@
 
         <div class="actionBtn" @click="handleDownload('Copy')">
           <i class="fal fa-copy"></i>
-          <span>Copy image</span>
+          <span>Copy</span>
         </div>
 
         <!-- <div class="actionBtn" @click="handleDownload('Config')">
           <i class="fal fa-copy"></i>
           <span>Url</span>
-        </div> -->
+        </div>-->
       </div>
 
       <div class="bottomSection">
@@ -202,13 +232,14 @@
 </template>
 
 <script>
-import { hljsThemes } from "@/data";
+import { codeMirrorThemes, codemirrorModes } from "@/data";
 import humanizeString from "humanize-string";
 import RangeInput from "@/components/RangeInput";
 import ColorPicker from "@/components/ColorPicker";
 import Templates from "@/components/Templates";
-import hljs from "highlight.js";
+import { templates } from "@/data";
 import { mapFields } from "vuex-map-fields";
+import { domToImage } from "@/helpers/dom-to-image";
 
 export default {
   name: "ConfigPanel",
@@ -238,14 +269,37 @@ export default {
     };
   },
 
+  created() {
+    // console.log(JSON.stringify(this.codemirrorLanguages));
+  },
+
   methods: {
     zoomEditor(type) {
       if (type === 1) this.zoom += 0.05;
       else this.zoom -= 0.05;
     },
 
-    handleDownload(type) {
-      this.$emit("download", type);
+    reset3dTransform() {
+      this.x = 0;
+      this.y = 0;
+      this.z = 0;
+    },
+
+    async handleDownload(type) {
+      if (!this.downloadLoading) {
+        this.downloadLoading = true;
+        try {
+          await domToImage(
+            type,
+            document.querySelector("#screenshot"),
+            this.downloadImageQuality,
+            this.downloadImageScaling
+          );
+        } catch (error) {
+          alert(error);
+        }
+        this.downloadLoading = false;
+      }
     },
 
     toggleConfig() {
@@ -265,7 +319,8 @@ export default {
       "config.fontFamily",
       "config.paddingX",
       "config.paddingY",
-      "config.borderRadius",
+      "config.borderRadiusInner",
+      "config.borderRadiusOuter",
       "config.backgroundColor",
       "config.zoom",
       "config.shadow",
@@ -275,10 +330,12 @@ export default {
       "config.transform3d.z",
       "config.downloadLoading",
       "config.downloadImageQuality",
+      "config.downloadImageScaling",
+      "config.lineNumbers",
     ]),
 
-    hljsThemes() {
-      return hljsThemes.map((filename) => {
+    codeMirrorThemes() {
+      return codeMirrorThemes.map((filename) => {
         return {
           label: humanizeString(filename),
           value: filename,
@@ -286,13 +343,23 @@ export default {
       });
     },
 
-    hljsLanguages() {
-      return hljs.listLanguages().map((language) => {
-        return {
-          label: humanizeString(language),
-          value: language,
-        };
-      });
+    codemirrorLanguages() {
+      return codemirrorModes;
+    },
+  },
+
+  watch: {
+    selectedTemplate: {
+      immediate: true,
+      handler: function (newVal) {
+        let template = templates.find((t) => t.name === newVal);
+
+        // flatten template data
+        template.x = template.transform3d.x;
+        template.y = template.transform3d.y;
+        template.z = template.transform3d.z;
+        Object.keys(template).forEach((key) => (this[key] = template[key]));
+      },
     },
   },
 };
@@ -398,6 +465,21 @@ export default {
     font-size: 0.8rem;
   }
 
+  .btnConfig {
+    border: 1px solid darken($color: #3f3b41, $amount: 10);
+    background-color: darken($color: #3f3b41, $amount: 10);
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+    outline: none;
+
+    &:active {
+      border-color: #3f3b41;
+    }
+  }
+
   .generalSettings {
     display: flex;
     flex-direction: column;
@@ -462,6 +544,10 @@ export default {
     .topSection {
       display: flex;
       justify-content: space-between;
+
+      .imageScaling {
+        font-size: 0.8rem;
+      }
     }
 
     .bottomSection {
@@ -493,4 +579,5 @@ export default {
   }
 }
 </style>
+
 

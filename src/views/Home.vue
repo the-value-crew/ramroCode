@@ -21,119 +21,51 @@
 
     <div class="codePanel" :style="codePanelCss">
       <vue-draggable-resizable
-        :w="800"
-        :h="400"
+        :w="500"
+        :h="screenshotHeight"
         :x="codePanelPos.x"
         :y="codePanelPos.y"
-        :min-width="200"
-        :min-height="200"
+        :handles="['mr']"
+        :prevent-deactivation="true"
         class-name="resizeRect"
         class-name-handle="resizeHandle"
+        :drag-handle="'.drag-handle'"
+        @resizing="handleResize"
+        :active="true"
+        :parent="true"
       >
+        <div class="drag-handle">
+          <i class="fal fa-grip-vertical"></i>
+        </div>
         <div id="screenshot" :style="screenshotInlineCss">
-          <pre id="code" :style="codeInlineCss"><div class="stack --first" :class="'--' + selectedStackTheme" ref="stackOne"></div><div
-  class="stack --second"
-  :class="'--' + selectedStackTheme"
-  ref="stackTwo"
-></div><div
-  id="border"
-  class="hljs"
-  :class="'--' + selectedBorderTheme"
-  :style="borderInlineCss"
-><div class="dots">
-          <div class="dot dot-1"></div>
-          <div class="dot dot-2"></div>
-          <div class="dot dot-3"></div>
-</div>
-          <div
-  v-if="showLanguageName"
-  class="languageName"
-  contenteditable
-  spellcheck="false"
->{{selectedLanguage | humanize}}</div>
-        </div><perfect-scrollbar
-  ref="codeEditor"
-  id="codeEditor"
-  class="hljs code"
-  v-html="codeHighlighted"
-  contenteditable
-  spellcheck="false"
-  @paste="(e) => handleCodeEditorPaste(e)"
-  @input="handleCodeEditorChange"
-  :style="codeEditorInlineCss"
-></perfect-scrollbar></pre>
+          <CodeEditor ref="ce" />
         </div>
       </vue-draggable-resizable>
     </div>
 
-    <ConfigPanel
-      ref="configPanel"
-      @download="handleDownload"
-      @languageChange="reHighlight"
-      @templateChange="reHighlight"
-      @editorThemeChange="reHighlight"
-    />
+    <ConfigPanel ref="configPanel" />
   </perfect-scrollbar>
 </template>
 
 <script>
 import ConfigPanel from "@/components/ConfigPanel";
-import { fluctuateRgb, copyConfigToClipboard } from "@/helpers/core";
-import { domToImage } from "@/helpers/dom-to-image";
-import { templates } from "@/data";
 import { mapFields } from "vuex-map-fields";
-import { highlight } from "@/workers/hljs.worker";
+import CodeEditor from "@/components/CodeEditor";
 
 export default {
   name: "Home",
-  components: { ConfigPanel },
+  components: { ConfigPanel, CodeEditor },
   data() {
     return {
-      codeHighlighted: null,
-      stackBaseColor: null,
+      height: null,
     };
   },
 
-  mounted() {
-    this.reHighlight();
-  },
+  mounted() {},
 
   methods: {
-    async handleDownload(type) {
-      if (type === "Config") {
-        copyConfigToClipboard(
-          JSON.stringify({ ...this.$store.state.config, codeText: null })
-        );
-        return;
-      }
-
-      if (!this.downloadLoading) {
-        this.downloadLoading = true;
-        try {
-          await domToImage(type, document.querySelector("#screenshot"));
-        } catch (error) {
-          alert(error);
-        }
-        this.downloadLoading = false;
-      }
-    },
-
-    async handleCodeEditorPaste(e) {
-      e.preventDefault();
-      this.codeText = e.clipboardData.getData("text");
-      document.execCommand("inserttext", false, this.codeText);
-      let hlData = await highlight(this.codeText);
-      this.selectedLanguage = hlData.language;
-      this.codeHighlighted = hlData.value;
-    },
-
-    handleCodeEditorChange(e) {
-      this.codeText = e.target.innerText;
-    },
-
-    async reHighlight() {
-      let highlightData = await highlight(this.codeText, this.selectedLanguage);
-      if (highlightData) this.codeHighlighted = highlightData.value;
+    handleResize() {
+      this.$refs.ce.handleViewPortChange();
     },
   },
 
@@ -150,7 +82,7 @@ export default {
       "config.fontFamily",
       "config.paddingX",
       "config.paddingY",
-      "config.borderRadius",
+      "config.borderRadiusOuter",
       "config.backgroundColor",
       "config.zoom",
       "config.shadow",
@@ -160,6 +92,9 @@ export default {
       "config.transform3d.z",
       "config.downloadLoading",
       "config.downloadImageQuality",
+      "config.downloadImageScaling",
+      "config.screenshotWidth",
+      "config.screenshotHeight",
     ]),
 
     codePanelPos() {
@@ -172,7 +107,8 @@ export default {
     },
 
     codePanelCss() {
-      return `transform: scale(${this.zoom})`;
+      // return `transform: scale(${this.zoom})`;
+      return "";
     },
 
     codeInlineCss() {
@@ -206,58 +142,11 @@ export default {
 
     screenshotInlineCss() {
       return `
-        border-radius: ${this.borderRadius}px;
+        height: ${this.screenshotHeight}px;
+        border-radius: ${this.borderRadiusOuter}px;
         background-color: ${this.backgroundColor};
         padding: ${this.paddingY || 0}px ${this.paddingX || 0}px;
       `;
-    },
-  },
-
-  watch: {
-    selectedEditorTheme: {
-      immediate: true,
-      handler: function (newThemeName) {
-        var head = document.getElementsByTagName("head")[0];
-        var link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.type = "text/css";
-        link.href = "/hljs-themes/" + newThemeName + ".css";
-        head.appendChild(link);
-
-        setTimeout(() => {
-          let themeColor = window
-            .getComputedStyle(document.querySelector(".hljs"))
-            .getPropertyValue("background-color");
-
-          this.$refs.stackOne.style.backgroundColor = fluctuateRgb(
-            themeColor,
-            20
-          );
-          this.$refs.stackTwo.style.backgroundColor = fluctuateRgb(
-            themeColor,
-            10
-          );
-        }, 1000);
-      },
-    },
-    selectedLanguage: {
-      immediate: true,
-      handler() {
-        this.reHighlight();
-      },
-    },
-
-    selectedTemplate: {
-      immediate: true,
-      handler: function (newVal) {
-        let template = templates.find((t) => t.name === newVal);
-
-        // flatten template data
-        template.x = template.transform3d.x;
-        template.y = template.transform3d.y;
-        template.z = template.transform3d.z;
-        Object.keys(template).forEach((key) => (this[key] = template[key]));
-      },
     },
   },
 };
@@ -266,72 +155,42 @@ export default {
 <style lang="scss">
 .resizeHandle {
   position: absolute;
-  background-color: white;
-  border: 3px solid #3f3b41;
-  border-radius: 50%;
-  height: 14px;
-  width: 14px;
+  // background-color: white;
+  border: 3px dashed #3f3b41;
+  border-radius: 5px;
+  height: 90%;
+  width: 15px;
   box-sizing: border-box;
   z-index: 1000;
-
-  &-tl {
-    transform: translate(-50%, -50%);
-    cursor: nw-resize;
-  }
-
-  &-tm {
-    left: 50%;
-    transform: translate(-50%, -70%);
-    cursor: n-resize;
-  }
-
-  &-tr {
-    right: 0;
-    transform: translate(50%, -50%);
-    cursor: ne-resize;
-  }
-
-  &-ml {
-    top: 50%;
-    left: 0;
-    transform: translate(-70%, -50%);
-    cursor: w-resize;
-  }
+  background-color: whitesmoke;
 
   &-mr {
     top: 50%;
     right: 0;
-    transform: translate(70%, -50%);
+    transform: translate(100%, -50%);
     cursor: e-resize;
-  }
-
-  &-bl {
-    top: 100%;
-    bottom: 0;
-    transform: translate(-50%, -50%);
-    cursor: sw-resize;
-  }
-
-  &-bm {
-    left: 50%;
-    bottom: 0;
-    transform: translate(-50%, 70%);
-    cursor: s-resize;
-  }
-
-  &-br {
-    right: 0;
-    bottom: 0;
-    transform: translate(50%, 50%);
-    cursor: se-resize;
   }
 }
 
 .resizeRect {
+  position: relative;
   border: 3px dashed #3f3b41;
-  height: auto;
+  // height: auto;
+  border-radius: 5px;
   z-index: 1000;
-  height: auto;
+  // height: auto;
+  // overflow: auto;
+}
+
+.drag-handle {
+  position: absolute;
+  background-color: whitesmoke;
+  border: 3px dashed #3f3b41;
+  padding: 0.5rem;
+  font-size: 1.5rem;
+  border-radius: 5px;
+  cursor: move;
+  transform: translateX(-100%);
 }
 
 .home {
