@@ -20,7 +20,7 @@ https://ramrocode.netlify.app
 
 
 ## Feature roadmap 📋
-- [ ] Better image quality for screenshots
+- [x] Better image quality for screenshots
 - [ ] Option to generate html/css widget containing code snippet
 - [ ] More cool designs for code snippets
 - [ ] Support for line numbers
