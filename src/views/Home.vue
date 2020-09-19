@@ -72,10 +72,10 @@ export default {
       // this.$refs.ce.handleViewPortChange();
       // this.$refs.ce.fireEvent();
 
-      let cm = document.querySelector(".CodeMirror");
-      var hs = cm.scrollWidth > cm.clientWidth;
-      console.log("----", cm.scrollWidth, cm.clientWidth);
-      this.warning = hs ? "Scrollbar will be visible on screenshot" : "";
+      // let cm = document.querySelector(".CodeMirror");
+      // var hs = cm.scrollWidth > cm.clientWidth;
+      // console.log("----", cm.scrollWidth, cm.clientWidth);
+      // this.warning = hs ? "Scrollbar will be visible on screenshot" : "";
     },
 
     toggleLock() {

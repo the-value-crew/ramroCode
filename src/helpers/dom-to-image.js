@@ -2,6 +2,10 @@ import domtoimage from "dom-to-image-more";
 import { downloadImage, copyBlobToClipboard } from "@/helpers/core";
 
 export const domToImage = async (type, domNode, imageQuality = 1, scale) => {
+
+    // clone node
+    // domNode = domNode.cloneNode(true);
+
     const option = {
         width: domNode.clientWidth * scale,
         height: domNode.clientHeight * scale,

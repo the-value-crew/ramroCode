@@ -32,7 +32,14 @@ let firstTimeConfig = {
   zoom: 1,
   screenshotWidth: null,
   screenshotHeight: null,
-  shadow: false,
+  shadow: {
+    visible: false,
+    horizontal: 10,
+    vertical: 10,
+    blur: 10,
+    spread: 10,
+    color: "#000000"
+  },
   lineNumbers: false,
   showLanguageName: false,
   showLineNumbers: false,

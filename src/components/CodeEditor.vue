@@ -6,7 +6,9 @@
         <div class="dot dot-2"></div>
         <div class="dot dot-3"></div>
       </div>
-      <div class="languageName" v-if="showLanguageName">{{selectedLanguage | humanize}}</div>
+      <div class="languageName" v-if="showLanguageName">
+        {{ selectedLanguage | humanize }}
+      </div>
     </div>
     <textarea ref="codemirror"></textarea>
   </div>
@@ -31,7 +33,7 @@ export default {
         tabSize: 4,
         keyMap: "sublime",
         viewportMargin: Infinity,
-        scrollbarStyle: null
+        scrollbarStyle: null,
         // lineWrapping: true,
       },
     };
@@ -71,7 +73,7 @@ export default {
     },
 
     refresh() {
-      this.codemirror.refresh();
+      if (this.codemirror) this.codemirror.refresh();
     },
   },
 
@@ -94,6 +96,7 @@ export default {
       "config.zoom",
       "config.shadow",
       "config.showLanguageName",
+      "config.transform3d",
       "config.transform3d.x",
       "config.transform3d.y",
       "config.transform3d.z",
@@ -102,10 +105,19 @@ export default {
       "config.lineNumbers",
     ]),
 
+    ...mapFields({
+      shadowVisibility: "config.shadow.visible",
+      shadowHorizontalLength: "config.shadow.horizontal",
+      shadowVerticalLength: "config.shadow.vertical",
+      shadowBlur: "config.shadow.blur",
+      shadowSpread: "config.shadow.spread",
+      shadowColor: "config.shadow.color",
+    }),
+
     wrapperStyle() {
       let extraCss = "";
-      if (this.shadow)
-        extraCss += `box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3),0 15px 12px rgba(0, 0, 0, 0.22);`;
+      if (this.shadowVisibility)
+        extraCss += `box-shadow: ${this.shadowHorizontalLength}px ${this.shadowVerticalLength}px ${this.shadowBlur}px ${this.shadowSpread}px ${this.shadowColor}`;
       return `
         background-color: ${this.themeBackgroundColor};
         color: ${this.themeTextColor};
@@ -119,6 +131,16 @@ export default {
   },
 
   watch: {
+    transform3d: {
+      immediate: true,
+      deep: true,
+      handler() {
+        this.refresh();
+        // console.log("refresh--3d transform");
+        // this.codemirror.refresh();
+      },
+    },
+
     selectedLanguage: {
       immediate: true,
       async handler() {
@@ -241,6 +263,7 @@ export default {
       margin-right: 1rem;
     }
 
+    // border themes
     &.--none {
       display: none;
     }
@@ -283,7 +306,17 @@ export default {
         border: 1px solid #fefefe;
       }
     }
+
+    &.--theme-5 {
+      .dot-1,
+      .dot-2 {
+        background-color: white;
+        filter: grayscale(80%);
+      }
+      .dot-3 {
+        background-color: #ffbd2e;
+      }
+    }
   }
 }
 </style>
-

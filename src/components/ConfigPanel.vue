@@ -1,8 +1,14 @@
 <template>
-  <div class="cpanel" :class="{'--hidden': !configVisible}">
+  <div class="cpanel" :class="{ '--hidden': !configVisible }">
     <div class="shortcut">
       <div class="shortcutBtn --handle" @click="toggleConfig()">
-        <i class="fal" :class="{'fa-angle-right': configVisible, 'fa-angle-left': !configVisible}"></i>
+        <i
+          class="fal"
+          :class="{
+            'fa-angle-right': configVisible,
+            'fa-angle-left': !configVisible,
+          }"
+        ></i>
       </div>
 
       <div class="topSection">
@@ -11,7 +17,7 @@
         </div>
 
         <div class="shortcutBtn">
-          <span class="btnText">{{Math.floor(zoom * 100)}}%</span>
+          <span class="btnText">{{ Math.floor(zoom * 100) }}%</span>
         </div>
 
         <div class="shortcutBtn" @click="zoomEditor(1)">
@@ -20,11 +26,19 @@
       </div>
 
       <div class="bottomSection" v-if="!configVisible">
-        <div class="shortcutBtn" @click="handleDownload('Copy')" title="Copy to clipboard">
+        <div
+          class="shortcutBtn"
+          @click="handleDownload('Copy')"
+          title="Copy to clipboard"
+        >
           <i class="fal fa-copy"></i>
         </div>
 
-        <div class="shortcutBtn" @click="handleDownload('Png')" title="Download image">
+        <div
+          class="shortcutBtn"
+          @click="handleDownload('Png')"
+          title="Download image"
+        >
           <i class="fal fa-download"></i>
         </div>
       </div>
@@ -40,11 +54,16 @@
           :key="i"
           :value="language.value"
           :selected="language.value == selectedLanguage"
-        >{{language.label}}</option>
+        >
+          {{ language.label }}
+        </option>
       </select>
 
       <label>Choose a template</label>
-      <Templates :value="selectedTemplate" @input="(tempName) => selectedTemplate = tempName" />
+      <Templates
+        :value="selectedTemplate"
+        @input="(tempName) => (selectedTemplate = tempName)"
+      />
     </div>
 
     <div class="header">Additional settings</div>
@@ -58,7 +77,9 @@
               :value="theme.value"
               :selected="theme.value == selectedEditorTheme"
               :key="theme.value"
-            >{{theme.label}}</option>
+            >
+              {{ theme.label }}
+            </option>
           </select>
         </div>
 
@@ -71,18 +92,26 @@
                 :key="borderTheme.value"
                 :value="borderTheme.value"
                 :selected="borderTheme.value == selectedBorderTheme"
-              >{{borderTheme.label}}</option>
+              >
+                {{ borderTheme.label }}
+              </option>
             </select>
           </div>
           <div class="col">
             <label>Stack Theme</label>
-            <select class="form-control" v-model="selectedStackTheme" style="max-width: 120px">
+            <select
+              class="form-control"
+              v-model="selectedStackTheme"
+              style="max-width: 120px"
+            >
               <option
                 v-for="theme in stackThemes"
                 :value="theme.value"
                 :selected="theme.value == selectedStackTheme"
                 :key="theme.value"
-              >{{theme.label}}</option>
+              >
+                {{ theme.label }}
+              </option>
             </select>
           </div>
         </div>
@@ -90,17 +119,28 @@
         <div class="row">
           <div class="col">
             <label>Font Size</label>
-            <RangeInput v-model="fontSize" :min="10" :max="40" :value="fontSize" />
+            <RangeInput
+              v-model="fontSize"
+              :min="10"
+              :max="40"
+              :value="fontSize"
+            />
           </div>
           <div class="col">
             <label>Font family</label>
-            <select class="form-control" v-model="fontFamily" style="max-width: 120px">
+            <select
+              class="form-control"
+              v-model="fontFamily"
+              style="max-width: 120px"
+            >
               <option
                 v-for="font in fontFamilies"
                 :value="font.value"
                 :selected="font.value == fontFamily"
                 :key="font.value"
-              >{{font.label}}</option>
+              >
+                {{ font.label }}
+              </option>
             </select>
           </div>
         </div>
@@ -132,40 +172,115 @@
         <div class="row">
           <div class="col">
             <label>Horizontal gap</label>
-            <RangeInput v-model="paddingX" :min="0" :max="200" :value="paddingX" />
+            <RangeInput
+              v-model="paddingX"
+              :min="0"
+              :max="200"
+              :value="paddingX"
+            />
           </div>
 
           <div class="col">
             <label>Vertical gap</label>
-            <RangeInput v-model="paddingY" :min="0" :max="200" :value="paddingY" />
+            <RangeInput
+              v-model="paddingY"
+              :min="0"
+              :max="200"
+              :value="paddingY"
+            />
           </div>
         </div>
 
         <div class="row">
           <div class="col">
             <div class="checkboxWrapper">
-              <input type="checkbox" id="showLanguageName" v-model="showLanguageName" />
+              <input
+                type="checkbox"
+                id="showLanguageName"
+                v-model="showLanguageName"
+              />
               <label for="showLanguageName">Language</label>
             </div>
+          </div>
+          <div class="col">
             <div class="checkboxWrapper">
               <input type="checkbox" id="lineNumbers" v-model="lineNumbers" />
               <label for="lineNumbers">Line Numbers</label>
             </div>
           </div>
-          <div class="col">
-            <div class="checkboxWrapper">
-              <input type="checkbox" id="shadow" v-model="shadow" />
-              <label for="shadow">Enable Shadow</label>
-            </div>
+        </div>
+
+        <div>
+          <div class="checkboxWrapper">
+            <input type="checkbox" id="shadow" v-model="shadowVisibility" />
+            <label for="shadow">Enable Shadow</label>
+          </div>
+
+          <div class="shadowControls" v-if="shadowVisibility">
+            <RangeInput
+              v-model="shadowHorizontalLength"
+              :min="-30"
+              :max="30"
+              :value="shadowHorizontalLength"
+              dotLabel="Width: "
+            />
+            <RangeInput
+              v-model="shadowVerticalLength"
+              :min="-30"
+              :max="30"
+              :value="shadowVerticalLength"
+              dotLabel="Height: "
+            />
+
+            <RangeInput
+              v-model="shadowBlur"
+              :min="0"
+              :max="30"
+              :value="shadowBlur"
+              dotLabel="Blur: "
+            />
+
+            <RangeInput
+              v-model="shadowSpread"
+              :min="0"
+              :max="30"
+              :value="shadowSpread"
+              dotLabel="Spread: "
+            />
+
+            <NativeColorPicker v-model="shadowColor" :value="shadowColor" />
           </div>
         </div>
 
         <div>
-          <label>3D Transformation</label>
-          <button class="btnConfig" @click="reset3dTransform()">Reset</button>
-          <RangeInput v-model="x" :value="x" :min="-360" :max="360" dotLabel="X: " dotWidth="26" />
-          <RangeInput v-model="y" :value="y" :min="-360" :max="360" dotLabel="Y: " dotWidth="26" />
-          <RangeInput v-model="z" :value="z" :min="-360" :max="360" dotLabel="Z: " dotWidth="26" />
+          <div class="labelWithControl">
+            <label>3D Transformation</label>
+            <button class="btnConfig" @click="reset3dTransform()">Reset</button>
+          </div>
+          <RangeInput
+            v-model="x"
+            :value="x"
+            :min="-360"
+            :max="360"
+            dotLabel="X: "
+            dotWidth="26"
+          />
+          <RangeInput
+            v-model="y"
+            :value="y"
+            :min="-360"
+            :max="360"
+            dotLabel="Y: "
+            dotWidth="26"
+          />
+          <RangeInput
+            v-model="z"
+            :value="z"
+            :min="-360"
+            :max="360"
+            dotLabel="Z: "
+            dotWidth="26"
+          />
         </div>
       </div>
     </perfect-scrollbar>
@@ -184,7 +299,9 @@
               :key="i"
               :value="i"
               :selected="downloadImageScaling === i"
-            >{{i}}x</option>
+            >
+              {{ i }}x
+            </option>
           </select>
         </div>
 
@@ -220,9 +337,11 @@
             <option
               v-for="i in 10"
               :key="i"
-              :value="i/10"
-              :selected="downloadImageQuality === i/10"
-            >{{i * 10}}%</option>
+              :value="i / 10"
+              :selected="downloadImageQuality === i / 10"
+            >
+              {{ i * 10 }}%
+            </option>
           </select>
           Quality
         </div>
@@ -236,6 +355,7 @@ import { codeMirrorThemes, codemirrorModes } from "@/data";
 import humanizeString from "humanize-string";
 import RangeInput from "@/components/RangeInput";
 import ColorPicker from "@/components/ColorPicker";
+import NativeColorPicker from "@/components/NativeColorPicker";
 import Templates from "@/components/Templates";
 import { templates } from "@/data";
 import { mapFields } from "vuex-map-fields";
@@ -243,7 +363,7 @@ import { domToImage } from "@/helpers/dom-to-image";
 
 export default {
   name: "ConfigPanel",
-  components: { ColorPicker, RangeInput, Templates },
+  components: { ColorPicker, RangeInput, Templates, NativeColorPicker },
   data() {
     return {
       borderThemes: [
@@ -252,6 +372,7 @@ export default {
         { label: "Theme 2", value: "theme-2" },
         { label: "Theme 3", value: "theme-3" },
         { label: "Theme 4", value: "theme-4" },
+        { label: "Theme 5", value: "theme-5" },
       ],
 
       stackThemes: [
@@ -323,7 +444,6 @@ export default {
       "config.borderRadiusOuter",
       "config.backgroundColor",
       "config.zoom",
-      "config.shadow",
       "config.showLanguageName",
       "config.transform3d.x",
       "config.transform3d.y",
@@ -333,6 +453,15 @@ export default {
       "config.downloadImageScaling",
       "config.lineNumbers",
     ]),
+
+    ...mapFields({
+      shadowVisibility: "config.shadow.visible",
+      shadowHorizontalLength: "config.shadow.horizontal",
+      shadowVerticalLength: "config.shadow.vertical",
+      shadowBlur: "config.shadow.blur",
+      shadowSpread: "config.shadow.spread",
+      shadowColor: "config.shadow.color",
+    }),
 
     codeMirrorThemes() {
       return codeMirrorThemes.map((filename) => {
@@ -577,7 +706,13 @@ export default {
       }
     }
   }
+
+  .labelWithControl {
+    display: flex;
+    justify-content: space-between;
+    label {
+      align-self: center;
+    }
+  }
 }
 </style>
-
-
