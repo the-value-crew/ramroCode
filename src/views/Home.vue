@@ -33,10 +33,10 @@
         class-name-handle="resizeHandle"
         @resizing="handleResize"
         :active="true"
-        :draggable="!lockDrag"
+        :draggable="!locked"
       >
         <div class="lock-handle" @click="toggleLock()">
-          <i class="fal fa-lock-alt" v-if="lockDrag"></i>
+          <i class="fal fa-lock-alt" v-if="locked"></i>
           <i class="fal fa-lock-open-alt" v-else></i>
         </div>
 
@@ -79,7 +79,7 @@ export default {
     },
 
     toggleLock() {
-      this.lockDrag = !this.lockDrag;
+      this.locked = !this.locked;
     },
   },
 
@@ -109,7 +109,7 @@ export default {
       "config.downloadImageScaling",
       "config.screenshotWidth",
       "config.screenshotHeight",
-      "config.lockDrag",
+      "config.locked",
     ]),
 
     codePanelPos() {

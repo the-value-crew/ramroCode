@@ -17,6 +17,7 @@ let firstTimeConfig = {
     "var step4 = 'Tell your friends about this awesome tool 😃' \n\n" +
     "//Thank You",
   configVisible: true,
+  locked: false,
   selectedEditorTheme: "dracula",
   selectedBorderTheme: "theme-1",
   selectedStackTheme: "none",
@@ -34,10 +35,10 @@ let firstTimeConfig = {
   screenshotHeight: null,
   shadow: {
     visible: false,
-    horizontal: 10,
-    vertical: 10,
-    blur: 10,
-    spread: 10,
+    horizontal: 0,
+    vertical: 0,
+    blur: 30,
+    spread: 0,
     color: "#000000"
   },
   lineNumbers: false,
@@ -50,8 +51,7 @@ let firstTimeConfig = {
   },
   downloadLoading: false,
   downloadImageQuality: 0.9,
-  downloadImageScaling: 1,
-  lockDrag: false
+  downloadImageScaling: 1
 }
 
 export default new Vuex.Store({

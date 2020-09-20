@@ -17,6 +17,7 @@
 <script>
 import CodeMirror from "codemirror";
 import { mapFields } from "vuex-map-fields";
+import { domToImage } from "@/helpers/dom-to-image";
 import "codemirror/lib/codemirror.css";
 import "codemirror/keymap/sublime.js";
 
@@ -35,28 +36,42 @@ export default {
         viewportMargin: Infinity,
         scrollbarStyle: null,
         // lineWrapping: true,
+        // readOnly: 'nocursor'
       },
     };
   },
 
   mounted() {
-    console.log(this.codeText);
-    this.codemirror = CodeMirror.fromTextArea(
-      this.$refs.codemirror,
-      this.cmOption
-    );
-    this.cmElem = this.codemirror.getWrapperElement();
-
-    this.codemirror.on("viewportChange", this.handleViewPortChange);
-    this.codemirror.on("change", () => {
-      this.codeText = this.codemirror.getValue();
-    });
-
-    // set value at last so that it triggers above events
-    this.codemirror.setValue(this.codeText);
+    this.initCodemirror();
+    // this.lockEditor();
   },
 
   methods: {
+    async lockEditor() {
+      try {
+        let cmWrapper = this.$refs.codeMirrorWrapper;
+        await domToImage("Png", cmWrapper, null, 2, false, (imgElem) =>  cmWrapper.innerHTML = imgElem);
+      } catch (error) {
+        alert(error);
+      }
+    },
+
+    initCodemirror() {
+      this.codemirror = CodeMirror.fromTextArea(
+        this.$refs.codemirror,
+        this.cmOption
+      );
+      this.cmElem = this.codemirror.getWrapperElement();
+
+      this.codemirror.on("viewportChange", this.handleViewPortChange);
+      this.codemirror.on("change", () => {
+        this.codeText = this.codemirror.getValue();
+      });
+
+      // set value at last so that it triggers above events
+      this.codemirror.setValue(this.codeText);
+    },
+
     fireEvent() {
       // CodeMirror.signal(this.$refs.codemirror, "viewportChange");
       this.codemirror.setValue(this.codeText);
@@ -226,6 +241,7 @@ export default {
 .CodeMirrorWrapper {
   border-radius: 5px;
   padding: 0.5rem;
+  transform-origin: center center;
   // overflow: hidden;
   .CodeMirror {
     height: auto; // grow height according to content
