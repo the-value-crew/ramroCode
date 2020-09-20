@@ -21,11 +21,10 @@ https://ramrocode.netlify.app
 
 ## Feature roadmap 📋
 - [x] Better image quality for screenshots
-- [ ] Option to generate html/css widget containing code snippet
+- [ ] Dedicated code editor(Check `codemirror` branch for more updates)
 - [ ] More cool designs for code snippets
 - [ ] Support for line numbers
 - [ ] Landing page to highlight its features
-
 
 ## Development 💻
 Its a vuejs based project. If you have nodejs and vue-cli installed, you are already equipped with everythig you need.
