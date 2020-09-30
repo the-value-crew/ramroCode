@@ -1,6 +1,6 @@
 <template>
-  <perfect-scrollbar class="home">
-    <div class="logo">
+  <perfect-scrollbar class="home relative">
+    <div class="logo absolute top-1 left-1">
       <img src="@/assets/logo.svg" />
       <span class="appName">
         RamroCode
@@ -207,11 +207,11 @@ export default {
   height: 100%;
 
   .logo {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1000;
-    display: flex;
+    // position: fixed;
+    // top: 1rem;
+    // left: 1rem;
+    // z-index: 1000;
+    // display: flex;
 
     img {
       align-self: center;

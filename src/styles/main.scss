@@ -8,6 +8,11 @@ $fa-font-path: "../assets/webfonts";
 
 // @import url("https://fonts.googleapis.com/css2?family=Karla&family=Fira+Code&family=Source+Code+Pro&family=Inconsolata&family=Ubuntu+Mono&display=swap");
 
+// Tailwind Css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* cyrillic-ext */
 @font-face {
   font-family: "Fira Code";
