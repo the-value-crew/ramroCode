@@ -10,16 +10,11 @@ import './styles/main.scss';
 import 'vue-swatches/dist/vue-swatches.css'
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 import "vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css";
-import VueAnalytics from 'vue-analytics'
 
 Vue.component('perfect-scrollbar', PerfectScrollbar)
 Vue.component('vue-draggable-resizable', VueDraggableResizable)
 Vue.component('VueSlider', VueSlider)
 Vue.config.productionTip = false
-
-Vue.use(VueAnalytics, {
-  id: 'UA-97437577-5'
-})
 
 // Filters
 import { registerFilters } from './filters';
